@@ -1,0 +1,8 @@
+name "ctoptions"
+description "Create options at compile time.."
+copyright "Copyright © "
+authors "Paul Crane"
+targetType "library"
+configuration "library" {
+	targetType "library"
+}
