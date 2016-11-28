@@ -46,10 +46,8 @@ struct StructOptions(T)
 			configFileName_ = fileName;
 			return loadString(fileName.readText);
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	/**
@@ -91,10 +89,8 @@ struct StructOptions(T)
 
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	/**
