@@ -245,6 +245,9 @@ unittest
 	assert(options.asInteger("id", 10) == 50);
 	assert(options.asInteger("id") == 50);
 
+	assert(options.contains("invalid") == false);
+	assert(options.asString("invalid", "valid") == "valid");
+
 	assert(options.name == "Paul");
 
 	options.name = "Bob";
@@ -257,4 +260,9 @@ unittest
 	assert(options.name == "Jim");
 
 	assert(options.as!long("id", 1) == 50); // Can be infered but we'll explicitly send it here.
+
+	immutable string emptyData;
+
+	StructOptions!VariedData dataEmptyOptions;
+	assert(options.loadString(emptyData) == false);
 }
