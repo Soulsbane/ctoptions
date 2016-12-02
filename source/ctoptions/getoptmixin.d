@@ -123,6 +123,7 @@ void generateGetOptCode(T)(string[] arguments, ref T options)
 {
 	try
 	{
+		///INFO: The options parameter is used in a string mixin with this call.
 		mixin GetOptMixin!T;
 
 		if(helpInformation.helpWanted)
