@@ -22,6 +22,8 @@ enum GetOptRequired = "GetOptRequired";
 enum GetOptPassThru = "GetOptPassThru";
 //TODO: Add support for other getopt options: http://dlang.org/phobos/std_getopt.html#.config
 
+alias CustomHelpFunction = void function(string text, Option[] opt);
+
 mixin template GetOptMixin(T)
 {
 	/**
@@ -95,6 +97,7 @@ mixin template GetOptMixin(T)
 	Params:
 		arguments = The arguments sent from the command-line
 		options = The struct that will be used to generate getopt options from.
+		func = The function to call when --help is passed. defaultGetoptPrinter by default.
 
 	Examples:
 		import std.stdio;
@@ -119,7 +122,7 @@ mixin template GetOptMixin(T)
 			writeln("after data.id => ", data.id);
 		}
 */
-void generateGetOptCode(T)(string[] arguments, ref T options)
+void generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 {
 	try
 	{
