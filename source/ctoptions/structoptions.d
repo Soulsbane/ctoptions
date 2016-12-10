@@ -21,7 +21,7 @@ private enum DEFAULT_CONFIG_FILE_NAME = "app.config";
 */
 struct StructOptions(T)
 {
-	~this()
+	~this() @safe
 	{
 		if(autoSave_)
 		{
@@ -39,7 +39,7 @@ struct StructOptions(T)
 		Returns:
 			Returns true on a successful load false otherwise.
 	*/
-	bool loadFile(const string fileName = DEFAULT_CONFIG_FILE_NAME, const bool autoSave = true)
+	bool loadFile(const string fileName = DEFAULT_CONFIG_FILE_NAME, const bool autoSave = true) @safe
 	{
 		if(fileName.exists)
 		{
@@ -59,7 +59,7 @@ struct StructOptions(T)
 		Returns:
 			Returns true on a successful load false otherwise.
 	*/
-	bool loadString(const string text)
+	bool loadString(const string text) @safe
 	{
 		if(text.length)
 		{
@@ -99,7 +99,7 @@ struct StructOptions(T)
 		Params:
 			fileName = The name of the file to save to.
 	*/
-	void save(const string fileName)
+	void save(const string fileName) @safe
 	{
 		configFileName_ = fileName;
 		save();
@@ -108,7 +108,7 @@ struct StructOptions(T)
 	/**
 		Saves config values to the config file.
 	*/
-	void save()
+	void save() @safe
 	{
 		if(configFileName_.length)
 		{
@@ -134,7 +134,7 @@ struct StructOptions(T)
 		Returns:
 			The value associated with key.
 	*/
-	S as(S)(const string key, const S defaultValue = S.init)
+	S as(S)(const string key, const S defaultValue = S.init) pure @safe
 	{
 		S value = defaultValue;
 
@@ -164,7 +164,7 @@ struct StructOptions(T)
 			key = Name of the key to set.
 			value = The value of key.
 	*/
-	void set(S)(const string key, const S value)
+	void set(S)(const string key, const S value) pure @safe
 	{
 		foreach(field; __traits(allMembers, T))
 		{
@@ -187,7 +187,7 @@ struct StructOptions(T)
 		Returns:
 			true if the config file contains the key false otherwise.
 	*/
-	bool contains(const string key) const
+	bool contains(const string key) const pure @safe
 	{
 		foreach(field; __traits(allMembers, T))
 		{
@@ -200,7 +200,7 @@ struct StructOptions(T)
 		return false;
 	}
 
-	void opIndexAssign(T)(T value, const string key)
+	void opIndexAssign(T)(T value, const string key) pure @safe
 	{
 		set(key, value);
 	}
