@@ -20,6 +20,7 @@ struct GetOptDescription
 //FIXME: According to what I've read only the enum <name> part is needed; but it fails unless it's assigned a value.
 enum GetOptRequired = "GetOptRequired";
 enum GetOptPassThru = "GetOptPassThru";
+enum GetOptStopOnFirst = "GetOptStopOnFirst";
 //TODO: Add support for other getopt options: http://dlang.org/phobos/std_getopt.html#.config
 
 alias CustomHelpFunction = void function(string text, Option[] opt);
@@ -51,6 +52,11 @@ mixin template GetOptMixin(T)
 		else
 		{
 			string getOptCode = "auto helpInformation = getopt(arguments, ";
+		}
+
+		static if(hasUDA!(T, GetOptStopOnFirst))
+		{
+			getOptCode ~= "std.getopt.config.stopOnFirstNonOption,";
 		}
 
 		foreach(field; __traits(allMembers, T))
@@ -131,7 +137,7 @@ void generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction
 
 		if(helpInformation.helpWanted)
 		{
-			defaultGetoptPrinter("The following options are available:", helpInformation.options);
+			func("The following options are available:", helpInformation.options);
 		}
 	}
 	catch(GetOptException ex)
