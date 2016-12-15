@@ -24,6 +24,7 @@ alias GetOptDescription = GetOptOptions;
 enum GetOptRequired = "GetOptRequired";
 enum GetOptPassThru = "GetOptPassThru";
 enum GetOptStopOnFirst = "GetOptStopOnFirst";
+enum GetOptBundling = "GetOptBundling";
 //TODO: Add support for other getopt options: http://dlang.org/phobos/std_getopt.html#.config
 
 alias CustomHelpFunction = void function(string text, Option[] opt);
@@ -60,6 +61,11 @@ mixin template GetOptMixin(T)
 		static if(hasUDA!(T, GetOptStopOnFirst))
 		{
 			getOptCode ~= "std.getopt.config.stopOnFirstNonOption,";
+		}
+
+		static if(hasUDA!(T, GetOptBundling))
+		{
+			getOptCode ~= "std.getopt.config.bundling,";
 		}
 
 		foreach(field; __traits(allMembers, T))
