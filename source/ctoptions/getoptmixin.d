@@ -12,10 +12,13 @@ import std.range;
 
 
 ///The attribute used for marking members
-struct GetOptDescription
+struct GetOptOptions
 {
-	string value;
+	string description;
+	string shortName;
 }
+
+alias GetOptDescription = GetOptOptions;
 
 //FIXME: According to what I've read only the enum <name> part is needed; but it fails unless it's assigned a value.
 enum GetOptRequired = "GetOptRequired";
@@ -32,9 +35,9 @@ mixin template GetOptMixin(T)
 
 		struct VariedData
 		{
-			@GetOptDescription("The name of the program")
+			@GetOptOptions("The name of the program")
 			string name;
-			@GetOptDescription("The id of the program")
+			@GetOptOptions("The id of the program")
 			size_t id;
 		}
 
@@ -65,19 +68,19 @@ mixin template GetOptMixin(T)
 
 			foreach(attr; memAttrs)
 			{
-				static if(is(typeof(attr) == GetOptDescription))
+				static if(is(typeof(attr) == GetOptOptions))
 				{
 					static if(hasUDA!(mixin("options." ~ field), GetOptRequired))
 					{
 						getOptCode ~= format(q{
 							std.getopt.config.required, "%s", "%s", &options.%s,
-						}, field, attr.value, field);
+						}, field, attr.description, field);
 					}
 					else
 					{
 						getOptCode ~= format(q{
 							"%s", "%s", &options.%s,
-						}, field, attr.value, field);
+						}, field, attr.description, field);
 					}
 				}
 			}
