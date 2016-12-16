@@ -75,19 +75,28 @@ mixin template GetOptMixin(T)
 				auto attr = getUDAs!(mixin("options." ~ field), GetOptOptions);
 				string shortName = attr[0].shortName;
 
+				if(shortName.length)
+				{
+					shortName = "|" ~ shortName;
+				}
+				else
+				{
+					shortName = string.init;
+				}
+
 				static if(attr.length == 1)
 				{
 					static if(hasUDA!(mixin("options." ~ field), GetOptRequired))
 					{
 						getOptCode ~= format(q{
-							std.getopt.config.required, "%s", "%s", &options.%s,
-						}, field, attr[0].description, field);
+							std.getopt.config.required, "%s%s", "%s", &options.%s,
+						}, field, shortName, attr[0].description, field);
 					}
 					else
 					{
 						getOptCode ~= format(q{
-							"%s", "%s", &options.%s,
-						}, field, attr[0].description, field);
+							"%s%s", "%s", &options.%s,
+						}, field, shortName, attr[0].description, field);
 					}
 				}
 			}
