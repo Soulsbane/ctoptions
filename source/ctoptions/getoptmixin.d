@@ -70,21 +70,24 @@ mixin template GetOptMixin(T)
 
 		foreach(field; __traits(allMembers, T))
 		{
-			auto attr = getUDAs!(mixin("options." ~ field), GetOptOptions);
-
-			static if(attr.length == 1)
+			static if(hasUDA!(mixin("options." ~ field), GetOptOptions))
 			{
-				static if(hasUDA!(mixin("options." ~ field), GetOptRequired))
+				auto attr = getUDAs!(mixin("options." ~ field), GetOptOptions);
+
+				static if(attr.length == 1)
 				{
-					getOptCode ~= format(q{
-						std.getopt.config.required, "%s", "%s", &options.%s,
-					}, field, attr[0].description, field);
-				}
-				else
-				{
-					getOptCode ~= format(q{
-						"%s", "%s", &options.%s,
-					}, field, attr[0].description, field);
+					static if(hasUDA!(mixin("options." ~ field), GetOptRequired))
+					{
+						getOptCode ~= format(q{
+							std.getopt.config.required, "%s", "%s", &options.%s,
+						}, field, attr[0].description, field);
+					}
+					else
+					{
+						getOptCode ~= format(q{
+							"%s", "%s", &options.%s,
+						}, field, attr[0].description, field);
+					}
 				}
 			}
 		}
