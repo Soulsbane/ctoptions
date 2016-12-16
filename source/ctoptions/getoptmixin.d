@@ -73,6 +73,7 @@ mixin template GetOptMixin(T)
 			static if(hasUDA!(mixin("options." ~ field), GetOptOptions))
 			{
 				auto attr = getUDAs!(mixin("options." ~ field), GetOptOptions);
+				string shortName = attr[0].shortName;
 
 				static if(attr.length == 1)
 				{
