@@ -168,5 +168,6 @@ void generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction
 	catch(GetOptException ex)
 	{
 		writeln(ex.msg);
+		writeln("For a list of available commands use --help.");
 	}
 }
