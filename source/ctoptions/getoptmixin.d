@@ -25,6 +25,7 @@ enum GetOptRequired = "GetOptRequired";
 enum GetOptPassThru = "GetOptPassThru";
 enum GetOptStopOnFirst = "GetOptStopOnFirst";
 enum GetOptBundling = "GetOptBundling";
+enum GetOptCaseSensitive = "GetOptCaseSensitive";
 //TODO: Add support for other getopt options: http://dlang.org/phobos/std_getopt.html#.config
 
 alias CustomHelpFunction = void function(string text, Option[] opt);
@@ -74,6 +75,11 @@ mixin template GetOptMixin(T)
 			{
 				auto attr = getUDAs!(mixin("options." ~ field), GetOptOptions);
 				string shortName = attr[0].shortName;
+
+				static if(hasUDA!(mixin("options." ~ field), GetOptCaseSensitive))
+				{
+					getOptCode ~= "std.getopt.config.caseSensitive,";
+				}
 
 				if(shortName.length)
 				{
