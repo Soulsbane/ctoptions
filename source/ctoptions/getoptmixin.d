@@ -16,6 +16,7 @@ struct GetOptOptions
 {
 	string description;
 	string shortName;
+	string name;
 }
 
 alias GetOptDescription = GetOptOptions;
@@ -75,6 +76,7 @@ mixin template GetOptMixin(T)
 			{
 				auto attr = getUDAs!(mixin("options." ~ field), GetOptOptions);
 				string shortName = attr[0].shortName;
+				string name = attr[0].name;
 
 				static if(hasUDA!(mixin("options." ~ field), GetOptCaseSensitive))
 				{
@@ -90,19 +92,24 @@ mixin template GetOptMixin(T)
 					shortName = string.init;
 				}
 
+				if(!name.length)
+				{
+					name = field;
+				}
+
 				static if(attr.length == 1)
 				{
 					static if(hasUDA!(mixin("options." ~ field), GetOptRequired))
 					{
 						getOptCode ~= format(q{
 							std.getopt.config.required, "%s%s", "%s", &options.%s,
-						}, field, shortName, attr[0].description, field);
+						}, name, shortName, attr[0].description, field);
 					}
 					else
 					{
 						getOptCode ~= format(q{
 							"%s%s", "%s", &options.%s,
-						}, field, shortName, attr[0].description, field);
+						}, name, shortName, attr[0].description, field);
 					}
 				}
 			}
