@@ -9,6 +9,7 @@ import std.stdio;
 import std.format;
 import std.string;
 import std.range;
+import std.conv;
 
 
 ///The attribute used for marking members
@@ -176,5 +177,9 @@ void generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction
 	{
 		writeln(ex.msg);
 		writeln("For a list of available commands use --help.");
+	}
+	catch(ConvException ex)
+	{
+		writeln(ex.msg);
 	}
 }
