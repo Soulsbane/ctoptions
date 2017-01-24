@@ -180,69 +180,68 @@ mixin template Commander(string modName = __MODULE__)
 
 			foreach(memberName; __traits(allMembers, mod))
 			{
-				static if(memberName != "_arrayExpSliceAndass_k")
+				alias member = helper!(__traits(getMember, mod, memberName));
+
+				static if(is(typeof(member) == function) && hasUDA!(member, CommandHelp))
 				{
-					static if(memberName != "_arrayExpComSliceAndass_k")
+					if(name.removechars("-") == "help")
 					{
-						alias member = helper!(__traits(getMember, mod, memberName));
-
-						static if(is(typeof(member) == function) && hasUDA!(member, CommandHelp))
+						if(args.length)
 						{
-							if(name.removechars("-") == "help")
+							if(memberName == args[0])
 							{
-								if(args.length)
-								{
-									if(memberName == args[0])
-									{
-										//TODO: Cleanup the output it's a little busy at the moment.
+								//TODO: Cleanup the output it's a little busy at the moment.
 
-										// Make sure and output all function overloads of the command also.
-										foreach (overload; __traits(getOverloads, mod, memberName))
-										{
-											immutable Parameters!overload overLoadedParams;
-
-											writeln;
-											processHelp!overload(memberName, args);
-										}
-									}
-								}
-								else
-								{
-									if(!headerShown)
-									{
-										writeln("The following options are available:");
-										writeln("For additional help use help <command>.");
-										writeln;
-									}
-
-									processHelp!member(memberName, args);
-									headerShown = true;
-								}
-							}
-							else if(memberName == name)
-							{
-								bool found;
-
+								// Make sure and output all function overloads of the command also.
 								foreach (overload; __traits(getOverloads, mod, memberName))
 								{
 									immutable Parameters!overload overLoadedParams;
 
-									if(overLoadedParams.length == args.length)
-									{
-										found = true;
-										processCommand!overload(memberName, args);
-									}
-								}
-								 // Failed to find the function so call with defaults so we can generate a detailed error.
-								if(!found)
-								{
-									processCommand!member(memberName, args);
+									writeln;
+									processHelp!overload(memberName, args);
 								}
 							}
+						}
+						else
+						{
+							if(!headerShown)
+							{
+								writeln("The following options are available:");
+								writeln("For additional help use help <command>.");
+								writeln;
+							}
+
+							processHelp!member(memberName, args);
+							headerShown = true;
+						}
+					}
+					else if(memberName == name)
+					{
+						bool found;
+
+						foreach (overload; __traits(getOverloads, mod, memberName))
+						{
+							immutable Parameters!overload overLoadedParams;
+
+							if(overLoadedParams.length == args.length)
+							{
+								found = true;
+								processCommand!overload(memberName, args);
+							}
+						}
+						 // Failed to find the function so call with defaults so we can generate a detailed error.
+						if(!found)
+						{
+							processCommand!member(memberName, args);
 						}
 					}
 				}
 			}
 		}
 	}
+}
+
+unittest
+{
+	immutable string[] args;
 }
