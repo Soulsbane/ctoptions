@@ -240,8 +240,3 @@ mixin template Commander(string modName = __MODULE__)
 		}
 	}
 }
-
-unittest
-{
-	immutable string[] args;
-}
