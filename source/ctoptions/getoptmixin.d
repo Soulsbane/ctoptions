@@ -144,9 +144,9 @@ mixin template GetOptMixin(T)
 		struct VariedData
 		{
 			//Sets the description in --help for command and makes this command a std.getopt.command.required argument.
-			@GetOptDescription("The name of the program") @GetOptRequired
+			@GetOptOptions("The name of the program") @GetOptRequired
 			string name;
-			@GetOptDescription("The id of the program")
+			@GetOptOptions("The id of the program")
 			size_t id;
 		}
 
