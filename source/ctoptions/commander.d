@@ -57,54 +57,51 @@ mixin template Commander(string modName = __MODULE__)
 		{
 			if(args.length)
 			{
-				//if(memberName == args[0])
-				//{
-					writef("Usage: %s", memberName);
+				writef("Usage: %s", memberName);
 
-					foreach(argName; ParameterIdentifierTuple!member)
+				foreach(argName; ParameterIdentifierTuple!member)
+				{
+					writef(" <%s>", argName);
+				}
+
+				writefln("\n\t%s", getAttribute!(member, CommandHelp).value);
+
+				if(Parameters!member.length)
+				{
+					writeln("Arguments:");
+				}
+
+				auto argDocs = getAttribute!(member, CommandHelp).argDocs;
+
+				foreach(idx, argName; ParameterIdentifierTuple!member)
+				{
+					string defaultValue;
+					bool hasDefaultValue;
+
+					static if(!is(ParameterDefaults!member[idx] == void))
 					{
-						writef(" <%s>", argName);
+						defaultValue = to!string(ParameterDefaults!member[idx]);
+						hasDefaultValue = true;
 					}
 
-					writefln("\n\t%s", getAttribute!(member, CommandHelp).value);
+					string argDoc;
 
-					if(Parameters!member.length)
+					if(idx < argDocs.length)
 					{
-						writeln("Arguments:");
+						argDoc = argDocs[idx];
 					}
 
-					auto argDocs = getAttribute!(member, CommandHelp).argDocs;
-
-					foreach(idx, argName; ParameterIdentifierTuple!member)
+					if(argDoc.length)
 					{
-						string defaultValue;
-						bool hasDefaultValue;
-
-						static if(!is(ParameterDefaults!member[idx] == void))
-						{
-							defaultValue = to!string(ParameterDefaults!member[idx]);
-							hasDefaultValue = true;
-						}
-
-						string argDoc;
-
-						if(idx < argDocs.length)
-						{
-							argDoc = argDocs[idx];
-						}
-
-						if(argDoc.length)
-						{
-							writefln("\t%s (%s): %s %s", argName, Parameters!member[idx].stringof, argDoc,
-								hasDefaultValue ? "[default=" ~ defaultValue ~ "]" : "");
-						}
-						else
-						{
-							writefln("\t%s (%s) %s", argName, Parameters!member[idx].stringof,
-								hasDefaultValue ? ": [default=" ~ defaultValue ~ "]" : "");
-						}
+						writefln("\t%s (%s): %s %s", argName, Parameters!member[idx].stringof, argDoc,
+							hasDefaultValue ? "[default=" ~ defaultValue ~ "]" : "");
 					}
-				//}
+					else
+					{
+						writefln("\t%s (%s) %s", argName, Parameters!member[idx].stringof,
+							hasDefaultValue ? ": [default=" ~ defaultValue ~ "]" : "");
+					}
+				}
 			}
 			else
 			{
