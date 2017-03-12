@@ -9,6 +9,11 @@ struct CommandHelp
 	string[] argDocs;
 }
 
+struct CommandName
+{
+	string value;
+}
+
 ///
 mixin template Commander(string modName = __MODULE__)
 {
@@ -52,8 +57,8 @@ mixin template Commander(string modName = __MODULE__)
 		{
 			if(args.length)
 			{
-				if(memberName == args[0])
-				{
+				//if(memberName == args[0])
+				//{
 					writef("Usage: %s", memberName);
 
 					foreach(argName; ParameterIdentifierTuple!member)
@@ -99,7 +104,7 @@ mixin template Commander(string modName = __MODULE__)
 								hasDefaultValue ? ": [default=" ~ defaultValue ~ "]" : "");
 						}
 					}
-				}
+				//}
 			}
 			else
 			{
@@ -188,17 +193,30 @@ mixin template Commander(string modName = __MODULE__)
 					{
 						if(args.length)
 						{
-							if(memberName == args[0])
+							static if(hasUDA!(member, CommandName))
 							{
-								//TODO: Cleanup the output it's a little busy at the moment.
-
-								// Make sure and output all function overloads of the command also.
-								foreach (overload; __traits(getOverloads, mod, memberName))
+								if(getAttribute!(member, CommandName).value == args[0])
 								{
-									immutable Parameters!overload overLoadedParams;
+									foreach (overload; __traits(getOverloads, mod, memberName))
+									{
+										immutable Parameters!overload overLoadedParams;
 
-									writeln;
-									processHelp!overload(memberName, args);
+										writeln;
+										processHelp!overload(getAttribute!(member, CommandName).value, args);
+									}
+								}
+							}
+							else
+							{
+								if(memberName == args[0])
+								{
+									foreach (overload; __traits(getOverloads, mod, memberName))
+									{
+										immutable Parameters!overload overLoadedParams;
+
+										writeln;
+										processHelp!overload(memberName, args);
+									}
 								}
 							}
 						}
@@ -211,28 +229,46 @@ mixin template Commander(string modName = __MODULE__)
 								writeln;
 							}
 
-							processHelp!member(memberName, args);
+							static if(hasUDA!(member, CommandName))
+							{
+								processHelp!member(getAttribute!(member, CommandName).value, args);
+							}
+							else
+							{
+								processHelp!member(memberName, args);
+							}
+
 							headerShown = true;
 						}
 					}
-					else if(memberName == name)
+					else
 					{
-						bool found;
+						string udaValue;
 
-						foreach (overload; __traits(getOverloads, mod, memberName))
+						static if(hasUDA!(member, CommandName))
 						{
-							immutable Parameters!overload overLoadedParams;
-
-							if(overLoadedParams.length == args.length)
-							{
-								found = true;
-								processCommand!overload(memberName, args);
-							}
+							udaValue = getAttribute!(member, CommandName).value;
 						}
-						 // Failed to find the function so call with defaults so we can generate a detailed error.
-						if(!found)
+
+						if(memberName == name || udaValue == name)
 						{
-							processCommand!member(memberName, args);
+							bool found;
+
+							foreach (overload; __traits(getOverloads, mod, memberName))
+							{
+								immutable Parameters!overload overLoadedParams;
+
+								if(overLoadedParams.length == args.length)
+								{
+									found = true;
+									processCommand!overload(memberName, args);
+								}
+							}
+							 // Failed to find the function so call with defaults so we can generate a detailed error.
+							if(!found)
+							{
+								processCommand!member(memberName, args);
+							}
 						}
 					}
 				}
