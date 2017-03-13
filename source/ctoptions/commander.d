@@ -131,13 +131,16 @@ mixin template Commander(string modName = __MODULE__)
 							writeln("See --help ", memberName, " for correct usage.");
 						}
 					}
-					else static if(!is(defaultArguments[idx] == void))
-					{
-						arg = defaultArguments[idx];
-					}
 					else
 					{
-						throw new Exception("Required argument, " ~ argumentNames[idx] ~ "(" ~ typeof(arg).stringof ~ ")," ~ " is missing.");
+						static if(!is(defaultArguments[idx] == void))
+						{
+							arg = defaultArguments[idx];
+						}
+						else
+						{
+							throw new Exception("Required argument, " ~ argumentNames[idx] ~ "(" ~ typeof(arg).stringof ~ ")," ~ " is missing.");
+						}
 					}
 				}
 
