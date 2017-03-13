@@ -190,30 +190,21 @@ mixin template Commander(string modName = __MODULE__)
 					{
 						if(args.length)
 						{
+							string udaValue = memberName;
+
 							static if(hasUDA!(member, CommandName))
 							{
-								if(getAttribute!(member, CommandName).value == args[0])
-								{
-									foreach (overload; __traits(getOverloads, mod, memberName))
-									{
-										immutable Parameters!overload overLoadedParams;
-
-										writeln;
-										processHelp!overload(getAttribute!(member, CommandName).value, args);
-									}
-								}
+								udaValue = getAttribute!(member, CommandName).value;
 							}
-							else
-							{
-								if(memberName == args[0])
-								{
-									foreach (overload; __traits(getOverloads, mod, memberName))
-									{
-										immutable Parameters!overload overLoadedParams;
 
-										writeln;
-										processHelp!overload(memberName, args);
-									}
+							if(udaValue == args[0])
+							{
+								foreach(overload; __traits(getOverloads, mod, memberName))
+								{
+									immutable Parameters!overload overLoadedParams;
+
+									writeln;
+									processHelp!overload(udaValue, args);
 								}
 							}
 						}
