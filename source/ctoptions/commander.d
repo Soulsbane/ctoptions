@@ -186,15 +186,15 @@ mixin template Commander(string modName = __MODULE__)
 
 				static if(is(typeof(member) == function) && hasUDA!(member, CommandHelp))
 				{
+					string udaValue = memberName;
+
+					static if(hasUDA!(member, CommandName))
+					{
+						udaValue = getAttribute!(member, CommandName).value;
+					}
+
 					if(name.removechars("-") == "help")
 					{
-						string udaValue = memberName;
-
-						static if(hasUDA!(member, CommandName))
-						{
-							udaValue = getAttribute!(member, CommandName).value;
-						}
-
 						if(args.length)
 						{
 							if(udaValue == args[0])
@@ -223,18 +223,11 @@ mixin template Commander(string modName = __MODULE__)
 					}
 					else
 					{
-						string udaValue;
-
-						static if(hasUDA!(member, CommandName))
-						{
-							udaValue = getAttribute!(member, CommandName).value;
-						}
-
 						if(memberName == name || udaValue == name)
 						{
 							bool found;
 
-							foreach (overload; __traits(getOverloads, mod, memberName))
+							foreach(overload; __traits(getOverloads, mod, memberName))
 							{
 								immutable Parameters!overload overLoadedParams;
 
@@ -244,7 +237,7 @@ mixin template Commander(string modName = __MODULE__)
 									processCommand!overload(memberName, args);
 								}
 							}
-							 // Failed to find the function so call with defaults so we can generate a detailed error.
+							// Failed to find the function so call with defaults so we can generate a detailed error.
 							if(!found)
 							{
 								processCommand!member(memberName, args);
