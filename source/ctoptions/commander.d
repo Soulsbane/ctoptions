@@ -188,15 +188,15 @@ mixin template Commander(string modName = __MODULE__)
 				{
 					if(name.removechars("-") == "help")
 					{
+						string udaValue = memberName;
+
+						static if(hasUDA!(member, CommandName))
+						{
+							udaValue = getAttribute!(member, CommandName).value;
+						}
+
 						if(args.length)
 						{
-							string udaValue = memberName;
-
-							static if(hasUDA!(member, CommandName))
-							{
-								udaValue = getAttribute!(member, CommandName).value;
-							}
-
 							if(udaValue == args[0])
 							{
 								foreach(overload; __traits(getOverloads, mod, memberName))
@@ -217,15 +217,7 @@ mixin template Commander(string modName = __MODULE__)
 								writeln;
 							}
 
-							static if(hasUDA!(member, CommandName))
-							{
-								processHelp!member(getAttribute!(member, CommandName).value, args);
-							}
-							else
-							{
-								processHelp!member(memberName, args);
-							}
-
+							processHelp!member(udaValue, args);
 							headerShown = true;
 						}
 					}
