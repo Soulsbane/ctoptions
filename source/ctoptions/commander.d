@@ -128,7 +128,7 @@ mixin template Commander(string modName = __MODULE__)
 						catch(ConvException ex)
 						{
 							writeln(ex.msg);
-							writeln("See --help ", memberName, " for correct usage.");
+							writeln("See help ", memberName, " for correct usage.");
 						}
 					}
 					else
