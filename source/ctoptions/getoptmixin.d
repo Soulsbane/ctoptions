@@ -161,7 +161,7 @@ mixin template GetOptMixin(T)
 			writeln("after data.id => ", data.id);
 		}
 */
-void generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
+bool generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 {
 	try
 	{
@@ -172,14 +172,21 @@ void generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction
 		{
 			func("The following options are available:", helpInformation.options);
 		}
+
+		return helpInformation.helpWanted;
 	}
 	catch(GetOptException ex)
 	{
 		writeln(ex.msg);
 		writeln("For a list of available commands use --help.");
+
+		return true;
 	}
 	catch(ConvException ex)
 	{
 		writeln(ex.msg);
+		return true;
 	}
+
+	assert(0);
 }
