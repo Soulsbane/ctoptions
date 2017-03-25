@@ -134,24 +134,18 @@ struct StructOptions(T)
 		Returns:
 			The value associated with key.
 	*/
-	S as(S)(const string key, const S defaultValue = S.init) pure @safe
+	S as(S, alias key)(const S defaultValue = S.init) pure @safe
 	{
 		S value = defaultValue;
 
-		foreach(field; __traits(allMembers, T))
+		try
 		{
-			if(field == key)
-			{
-				try
-				{
-					immutable string generatedCode = "value = data_." ~ field ~ ".to!S;";
-					mixin(generatedCode);
-				}
-				catch(ConvException ex)
-				{
-					return defaultValue;
-				}
-			}
+			immutable string generatedCode = "value = data_." ~ key ~ ".to!S;";
+			mixin(generatedCode);
+		}
+		catch(ConvException ex)
+		{
+			return defaultValue;
 		}
 
 		return value;
@@ -207,10 +201,10 @@ struct StructOptions(T)
 
 	alias data_ this;
 
-	alias asInteger = as!long;
-	alias asDecimal = as!double;
-	alias asString = as!string;
-	alias asBoolean = as!bool;
+	mixin(generateAsMethod!long("asInteger"));
+	mixin(generateAsMethod!double("asDecimal"));
+	mixin(generateAsMethod!string("asString"));
+	mixin(generateAsMethod!bool("asBoolean"));
 	alias get = as;
 
 	T data_;
@@ -218,6 +212,16 @@ struct StructOptions(T)
 private:
 	string configFileName_;
 	bool autoSave_;
+}
+
+private string generateAsMethod(T)(const string name) pure @safe
+{
+	return format(q{
+		%s %s(alias key)(const %s defaultValue = %s.init) pure @safe
+		{
+			return as!(%s, key)(defaultValue);
+		}
+	}, T.stringof, name, T.stringof, T.stringof, T.stringof);
 }
 
 ///
@@ -238,15 +242,15 @@ unittest
 	StructOptions!VariedData options;
 	options.loadString(data);
 
-	assert(options.as("name", "onamae") == "Paul");
-	assert(options.get("foo", "bar") == "bar");
+	assert(options.as!(string, "name")("onamae") == "Paul");
+	assert(options.as!(string, "name") == "Paul"); // No default value passed.
 
 	assert(options.contains("id"));
-	assert(options.asInteger("id", 10) == 50);
-	assert(options.asInteger("id") == 50);
+	assert(options.asInteger!("id")(10) == 50);
+	assert(options.asInteger!("id") == 50);
+	assert(options.getID(10) == 50); // TODO: Make this work!
 
 	assert(options.contains("invalid") == false);
-	assert(options.asString("invalid", "valid") == "valid");
 
 	assert(options.name == "Paul");
 
@@ -259,7 +263,7 @@ unittest
 	options["name"] = "Jim";
 	assert(options.name == "Jim");
 
-	assert(options.as!long("id", 1) == 50); // Can be infered but we'll explicitly send it here.
+	assert(options.as!(long, "id")(1) == 50);
 
 	immutable string emptyData;
 
