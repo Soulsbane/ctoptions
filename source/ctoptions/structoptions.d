@@ -13,6 +13,7 @@ import std.algorithm;
 import std.array;
 import std.getopt;
 import std.stdio;
+import std.string;
 
 private enum DEFAULT_CONFIG_FILE_NAME = "app.config";
 
@@ -207,6 +208,8 @@ struct StructOptions(T)
 	mixin(generateAsMethod!bool("asBoolean"));
 	alias get = as;
 
+	mixin(generateMethodNameCode!T());
+
 	T data_;
 
 private:
@@ -222,6 +225,23 @@ private string generateAsMethod(T)(const string name) pure @safe
 			return as!(%s, key)(defaultValue);
 		}
 	}, T.stringof, name, T.stringof, T.stringof, T.stringof);
+}
+
+private string generateMethodNameCode(T)()
+{
+	string code;
+
+	foreach (i, memberType; typeof(T.tupleof))
+	{
+		code ~= format(q{
+			%s get%s(const %s defaultValue = %s.init) pure @safe
+			{
+				return as!(%s, "%s")(defaultValue);
+			}
+		}, memberType.stringof, T.tupleof[i].stringof.capitalize, memberType.stringof, memberType.stringof, memberType.stringof, T.tupleof[i].stringof);
+	}
+
+	return code;
 }
 
 ///
@@ -249,7 +269,10 @@ unittest
 	assert(options.asInteger!("id")(10) == 50);
 	assert(options.asInteger!("id") == 50);
 	assert(options.asString!("id") == "50");
-	//assert(options.getID(10) == 50); // TODO: Make this work!
+
+	//Sugar
+	assert(options.getId(10) == 50); // TODO: Make this work!
+	assert(options.getName() == "Paul");
 
 	assert(options.contains("invalid") == false);
 
@@ -270,4 +293,5 @@ unittest
 
 	StructOptions!VariedData dataEmptyOptions;
 	assert(options.loadString(emptyData) == false);
+	writeln(generateMethodNameCode!VariedData());
 }
