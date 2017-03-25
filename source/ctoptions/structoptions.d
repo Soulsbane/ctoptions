@@ -135,13 +135,19 @@ struct StructOptions(T)
 		Returns:
 			The value associated with key.
 	*/
-	S as(S, alias key)(const S defaultValue = S.init) pure @safe
+	S as(S, alias key)(const S defaultValue = S.init) //pure @safe
 	{
 		S value = defaultValue;
 
 		try
 		{
-			immutable string generatedCode = "value = data_." ~ key ~ ".to!S;";
+			immutable string generatedCode = format(q{
+				if(data_.%s.to!S != S.init)
+				{
+					value = data_.%s.to!S;
+				}
+			}, key, key);
+
 			mixin(generatedCode);
 		}
 		catch(ConvException ex)
@@ -271,7 +277,7 @@ unittest
 	assert(options.asString!("id") == "50");
 
 	//Sugar
-	assert(options.getId(10) == 50); // TODO: Make this work!
+	assert(options.getId(10) == 50);
 	assert(options.getName() == "Paul");
 
 	assert(options.contains("invalid") == false);
@@ -292,6 +298,15 @@ unittest
 	immutable string emptyData;
 
 	StructOptions!VariedData dataEmptyOptions;
-	assert(options.loadString(emptyData) == false);
-	writeln(generateMethodNameCode!VariedData());
+	assert(dataEmptyOptions.loadString(emptyData) == false);
+
+	immutable string oneValue =
+	q{
+			name = Paul
+	};
+
+	StructOptions!VariedData oneValueTest;
+
+	oneValueTest.loadString(oneValue);
+	assert(oneValueTest.getId(10) == 10);
 }
