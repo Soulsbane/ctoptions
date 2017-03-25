@@ -223,6 +223,19 @@ private:
 	bool autoSave_;
 }
 
+/*
+	This generates an accessor function based on the name and type passed.
+	For example:
+
+	mixin(generateAsMethod!long("asInteger"));
+
+	will generate this code:
+
+	long asInteger(alias key)(const long defaultValue = long.init) pure @safe
+	{
+		return as!(long, key)(defaultValue);
+	}
+*/
 private string generateAsMethod(T)(const string name) pure @safe
 {
 	return format(q{
@@ -233,6 +246,23 @@ private string generateAsMethod(T)(const string name) pure @safe
 	}, T.stringof, name, T.stringof, T.stringof, T.stringof);
 }
 
+/*
+	This generates an accessor function based on a structs member names. For example this struct:
+
+	struct Test
+	{
+		string name;
+	}
+
+	will generate this code:
+
+	string getName(const string defaultValue = string.init) pure @safe
+	{
+		return as!(string, "name")(defaultValue);
+	}
+
+	it does this for each member of the struct.
+*/
 private string generateMethodNameCode(T)()
 {
 	string code;
