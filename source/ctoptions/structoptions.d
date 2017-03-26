@@ -215,6 +215,7 @@ struct StructOptions(T)
 	alias get = as;
 
 	mixin(generateAsMethodNameCode!T());
+	mixin(generateSetMethodNameCode!T());
 
 	T data_;
 
@@ -247,7 +248,7 @@ private string generateAsMethod(T)(const string name) pure @safe
 }
 
 /*
-	This generates an accessor function based on a structs member names. For example this struct:
+	This generates an accessor method based on a structs member names. For example this struct:
 
 	struct Test
 	{
@@ -277,6 +278,42 @@ private string generateAsMethodNameCode(T)()
 				return as!(%s, "%s")(defaultValue);
 			}
 		}, memType, T.tupleof[i].stringof.capitalize, memType, memType, memType, T.tupleof[i].stringof);
+	}
+
+	return code;
+}
+
+/*
+	This generates an set method based on a structs member names. For example this struct:
+
+	struct Test
+	{
+		string name;
+	}
+
+	will generate this code:
+
+	void setName(const string value) pure @safe
+	{
+		return set("name", value);
+	}
+
+	it does this for each member of the struct.
+*/
+private string generateSetMethodNameCode(T)()
+{
+	string code;
+
+	foreach (i, memberType; typeof(T.tupleof))
+	{
+		immutable string memType = memberType.stringof;
+
+		code ~= format(q{
+			void set%s(const %s value) pure @safe
+			{
+				return set("%s", value);
+			}
+		}, T.tupleof[i].stringof.capitalize, memType, T.tupleof[i].stringof);
 	}
 
 	return code;
@@ -341,4 +378,7 @@ unittest
 
 	oneValueTest.loadString(oneValue);
 	assert(oneValueTest.getId(10) == 10);
+
+	oneValueTest.setId(5281);
+	assert(oneValueTest.getId() == 5281);
 }
