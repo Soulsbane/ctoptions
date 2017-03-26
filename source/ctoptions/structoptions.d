@@ -269,12 +269,14 @@ private string generateMethodNameCode(T)()
 
 	foreach (i, memberType; typeof(T.tupleof))
 	{
+		immutable string memType = memberType.stringof;
+
 		code ~= format(q{
 			%s get%s(const %s defaultValue = %s.init) pure @safe
 			{
 				return as!(%s, "%s")(defaultValue);
 			}
-		}, memberType.stringof, T.tupleof[i].stringof.capitalize, memberType.stringof, memberType.stringof, memberType.stringof, T.tupleof[i].stringof);
+		}, memType, T.tupleof[i].stringof.capitalize, memType, memType, memType, T.tupleof[i].stringof);
 	}
 
 	return code;
