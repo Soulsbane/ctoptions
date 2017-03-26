@@ -214,7 +214,7 @@ struct StructOptions(T)
 	mixin(generateAsMethod!bool("asBoolean"));
 	alias get = as;
 
-	mixin(generateMethodNameCode!T());
+	mixin(generateAsMethodNameCode!T());
 
 	T data_;
 
@@ -263,7 +263,7 @@ private string generateAsMethod(T)(const string name) pure @safe
 
 	it does this for each member of the struct.
 */
-private string generateMethodNameCode(T)()
+private string generateAsMethodNameCode(T)()
 {
 	string code;
 
