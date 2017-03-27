@@ -341,6 +341,8 @@ unittest
 	assert(options.as!(string, "name") == "Paul"); // No default value passed.
 
 	assert(options.contains("id"));
+	assert(options.contains("nothing") == false);
+
 	assert(options.asInteger!("id")(10) == 50);
 	assert(options.asInteger!("id") == 50);
 	assert(options.asString!("id") == "50");
