@@ -187,6 +187,11 @@ bool generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction
 		writeln(ex.msg);
 		return true;
 	}
+	catch(Exception ex)
+	{
+		writeln(ex.msg);
+		return true;
+	}
 
 	assert(0);
 }
