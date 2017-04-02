@@ -1,4 +1,5 @@
 __test__library__
+ctoptions-test-library
 libctoptions.a
 .dub
 docs.json
