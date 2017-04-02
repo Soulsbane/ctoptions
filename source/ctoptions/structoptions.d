@@ -14,6 +14,7 @@ import std.array;
 import std.getopt;
 import std.stdio;
 import std.string;
+import std.uni;
 
 private enum DEFAULT_CONFIG_FILE_NAME = "app.config";
 
@@ -271,13 +272,15 @@ private string generateAsMethodNameCode(T)()
 	foreach (i, memberType; typeof(T.tupleof))
 	{
 		immutable string memType = memberType.stringof;
+		immutable string memName = T.tupleof[i].stringof;
+		immutable string memNameCapitalized = memName[0].toUpper.to!string ~ memName[1..$];
 
 		code ~= format(q{
 			%s get%s(const %s defaultValue = %s.init) pure @safe
 			{
 				return as!(%s, "%s")(defaultValue);
 			}
-		}, memType, T.tupleof[i].stringof.capitalize, memType, memType, memType, T.tupleof[i].stringof);
+		}, memType, memNameCapitalized, memType, memType, memType, memName);
 	}
 
 	return code;
@@ -307,13 +310,15 @@ private string generateSetMethodNameCode(T)()
 	foreach (i, memberType; typeof(T.tupleof))
 	{
 		immutable string memType = memberType.stringof;
+		immutable string memName = T.tupleof[i].stringof;
+		immutable string memNameCapitalized = memName[0].toUpper.to!string ~ memName[1..$];
 
 		code ~= format(q{
 			void set%s(const %s value) pure @safe
 			{
 				return set("%s", value);
 			}
-		}, T.tupleof[i].stringof.capitalize, memType, T.tupleof[i].stringof);
+		}, memNameCapitalized, memType, memName);
 	}
 
 	return code;
@@ -383,4 +388,17 @@ unittest
 
 	oneValueTest.setId(5281);
 	assert(oneValueTest.getId() == 5281);
+
+	struct IrregularNames
+	{
+		string tocField;
+		size_t id;
+	}
+
+	StructOptions!IrregularNames irrNames;
+
+	irrNames.setTocField("Setting toc field");
+	irrNames.setId(1900);
+	assert(irrNames.getTocField == "Setting toc field");
+	assert(irrNames.getId = 1900);
 }
