@@ -130,6 +130,17 @@ mixin template GetOptMixin(T)
 	mixin(wrapped);
 }
 
+class GetOptMixinException: Exception
+{
+	public
+	{
+		@safe pure nothrow this(string message, string file =__FILE__, size_t line = __LINE__, Throwable next = null)
+		{
+			super(message, file, line, next);
+		}
+	}
+}
+
 /**
 	Generates generic code for use in std.getopt.
 
@@ -161,7 +172,7 @@ mixin template GetOptMixin(T)
 			writeln("after data.id => ", data.id);
 		}
 */
-bool generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
+void generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 {
 	try
 	{
@@ -172,26 +183,17 @@ bool generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction
 		{
 			func("The following options are available:", helpInformation.options);
 		}
-
-		return helpInformation.helpWanted;
 	}
 	catch(GetOptException ex)
 	{
-		writeln(ex.msg);
-		writeln("For a list of available commands use --help.");
-
-		return true;
+		throw new GetOptMixinException(ex.msg, "For a list of available commands use --help.");
 	}
 	catch(ConvException ex)
 	{
-		writeln(ex.msg);
-		return true;
+		throw new GetOptMixinException(ex.msg);
 	}
 	catch(Exception ex)
 	{
-		writeln(ex.msg);
-		return true;
+		throw new GetOptMixinException(ex.msg);
 	}
-
-	assert(0);
 }
