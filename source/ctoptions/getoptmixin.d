@@ -38,7 +38,7 @@ enum GetOptCaseSensitive = "GetOptCaseSensitive";
 
 alias CustomHelpFunction = void function(string text, Option[] opt);
 
-mixin template GetOptMixin(T, string modName = __MODULE__)
+mixin template GetOptMixin(T, string varName = "options", string modName = __MODULE__)
 {
 	/**
 		Using the example struct below this string mixin generates this code.
@@ -81,13 +81,13 @@ mixin template GetOptMixin(T, string modName = __MODULE__)
 
 		foreach(field; __traits(allMembers, T))
 		{
-			static if(hasUDA!(mixin("options." ~ field), GetOptOptions))
+			static if(hasUDA!(mixin("T." ~ field), GetOptOptions))
 			{
-				auto attr = getUDAs!(mixin("options." ~ field), GetOptOptions);
+				auto attr = getUDAs!(mixin("T." ~ field), GetOptOptions);
 				string shortName = attr[0].shortName;
 				string name = attr[0].name;
 
-				static if(hasUDA!(mixin("options." ~ field), GetOptCaseSensitive))
+				static if(hasUDA!(mixin("T." ~ field), GetOptCaseSensitive))
 				{
 					getOptCode ~= "std.getopt.config.caseSensitive,";
 				}
@@ -108,27 +108,27 @@ mixin template GetOptMixin(T, string modName = __MODULE__)
 
 				static if(attr.length == 1)
 				{
-					static if(hasUDA!(mixin("options." ~ field), GetOptRequired))
+					static if(hasUDA!(mixin("T." ~ field), GetOptRequired))
 					{
 						getOptCode ~= format(q{
-							std.getopt.config.required, "%s%s", "%s", &options.%s,
-						}, name, shortName, attr[0].description, field);
+							std.getopt.config.required, "%s%s", "%s", &%s.%s,
+						}, name, shortName, attr[0].description, varName, field);
 					}
 					else
 					{
 						getOptCode ~= format(q{
-							"%s%s", "%s", &options.%s,
-						}, name, shortName, attr[0].description, field);
+							"%s%s", "%s", &%s.%s,
+						}, name, shortName, attr[0].description, varName, field);
 					}
 				}
 			}
-			static if(hasUDA!(mixin("options." ~ field), GetOptCallback))
+			static if(hasUDA!(mixin("T." ~ field), GetOptCallback))
 			{
-				immutable auto attr = getUDAs!(mixin("options." ~ field), GetOptCallback);
+				immutable auto attr = getUDAs!(mixin("T." ~ field), GetOptCallback);
 				string name = attr[0].name;
 				immutable string funcName = attr[0].func;
 
-				static if(hasUDA!(mixin("options." ~ field), GetOptCaseSensitive))
+				static if(hasUDA!(mixin("T." ~ field), GetOptCaseSensitive))
 				{
 					getOptCode ~= "std.getopt.config.caseSensitive,";
 				}
@@ -140,7 +140,7 @@ mixin template GetOptMixin(T, string modName = __MODULE__)
 
 				static if(attr.length == 1)
 				{
-					static if(hasUDA!(mixin("options." ~ field), GetOptRequired))
+					static if(hasUDA!(mixin("T." ~ field), GetOptRequired))
 					{
 						getOptCode ~= format(q{
 							std.getopt.config.required, "%s", &%s.%s,
@@ -210,13 +210,13 @@ class GetOptMixinException: Exception
 			writeln("after data.id => ", data.id);
 		}
 */
-void generateGetOptCode(T, string modName = __MODULE__)
+void generateGetOptCode(T, string varName = "options", string modName = __MODULE__)
 	(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 {
 	try
 	{
 		///INFO: The options parameter is used in a string mixin with this call.
-		mixin GetOptMixin!(T, modName);
+		mixin GetOptMixin!(T, varName, modName);
 
 		if(helpInformation.helpWanted)
 		{
