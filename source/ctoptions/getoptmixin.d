@@ -20,6 +20,12 @@ struct GetOptOptions
 	string name;
 }
 
+struct GetOptCallback
+{
+	string name;
+	string func;
+}
+
 alias GetOptDescription = GetOptOptions;
 
 //FIXME: According to what I've read only the enum <name> part is needed; but it fails unless it's assigned a value.
@@ -32,7 +38,7 @@ enum GetOptCaseSensitive = "GetOptCaseSensitive";
 
 alias CustomHelpFunction = void function(string text, Option[] opt);
 
-mixin template GetOptMixin(T)
+mixin template GetOptMixin(T, string modName = __MODULE__)
 {
 	/**
 		Using the example struct below this string mixin generates this code.
@@ -54,11 +60,13 @@ mixin template GetOptMixin(T)
 	{
 		static if(hasUDA!(T, GetOptPassThru))
 		{
-			string getOptCode = "auto helpInformation = getopt(arguments, std.getopt.config.passThrough, ";
+			string getOptCode = "import " ~ modName ~ ";";
+			getOptCode ~= "auto helpInformation = getopt(arguments, std.getopt.config.passThrough, ";
 		}
 		else
 		{
-			string getOptCode = "auto helpInformation = getopt(arguments, ";
+			string getOptCode = "import " ~ modName ~ ";";
+			getOptCode ~= "auto helpInformation = getopt(arguments, ";
 		}
 
 		static if(hasUDA!(T, GetOptStopOnFirst))
@@ -111,6 +119,36 @@ mixin template GetOptMixin(T)
 						getOptCode ~= format(q{
 							"%s%s", "%s", &options.%s,
 						}, name, shortName, attr[0].description, field);
+					}
+				}
+			}
+			static if(hasUDA!(mixin("options." ~ field), GetOptCallback))
+			{
+				immutable auto attr = getUDAs!(mixin("options." ~ field), GetOptCallback);
+				string name = attr[0].name;
+				immutable string funcName = attr[0].func;
+
+				static if(hasUDA!(mixin("options." ~ field), GetOptCaseSensitive))
+				{
+					getOptCode ~= "std.getopt.config.caseSensitive,";
+				}
+
+				if(!name.length)
+				{
+					name = field;
+				}
+
+				static if(attr.length == 1)
+				{
+					static if(hasUDA!(mixin("options." ~ field), GetOptRequired))
+					{
+						getOptCode ~= format(q{
+							std.getopt.config.required, "%s", &%s.%s,
+						}, name, modName, funcName);
+					}
+					else
+					{
+						getOptCode ~= format(q{ "%s", &%s.%s, }, name, modName, funcName);
 					}
 				}
 			}
@@ -172,12 +210,13 @@ class GetOptMixinException: Exception
 			writeln("after data.id => ", data.id);
 		}
 */
-void generateGetOptCode(T)(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
+void generateGetOptCode(T, string modName = __MODULE__)
+	(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 {
 	try
 	{
 		///INFO: The options parameter is used in a string mixin with this call.
-		mixin GetOptMixin!T;
+		mixin GetOptMixin!(T, modName);
 
 		if(helpInformation.helpWanted)
 		{
