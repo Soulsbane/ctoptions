@@ -79,6 +79,32 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 			getOptCode ~= "std.getopt.config.bundling,";
 		}
 
+		static if(hasUDA!(T, GetOptCallback))
+		{
+			immutable auto callbackAttribute = getUDAs!(T, GetOptCallback);
+			string commandLineName = callbackAttribute[0].name;
+			immutable string callbackFuncName = callbackAttribute[0].func;
+
+			static if(hasUDA!(T, GetOptCaseSensitive))
+			{
+				getOptCode ~= "std.getopt.config.caseSensitive,";
+			}
+
+			static if(callbackAttribute.length == 1)
+			{
+				static if(hasUDA!(T, GetOptRequired))
+				{
+					getOptCode ~= format(q{
+						std.getopt.config.required, "%s", &%s.%s,
+					}, commandLineName, modName, callbackFuncName);
+				}
+				else
+				{
+					getOptCode ~= format(q{ "%s", &%s.%s, }, commandLineName, modName, callbackFuncName);
+				}
+			}
+		}
+
 		foreach(field; __traits(allMembers, T))
 		{
 			static if(hasUDA!(mixin("T." ~ field), GetOptOptions))
