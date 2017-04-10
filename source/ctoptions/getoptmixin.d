@@ -81,17 +81,18 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 
 		static if(hasUDA!(T, GetOptCallback))
 		{
-			immutable auto callbackAttribute = getUDAs!(T, GetOptCallback);
-			string commandLineName = callbackAttribute[0].name;
-			immutable string callbackFuncName = callbackAttribute[0].func;
+			immutable auto callbackAttributes = getUDAs!(T, GetOptCallback);
 
-			static if(hasUDA!(T, GetOptCaseSensitive))
+			foreach(attrValues; callbackAttributes)
 			{
-				getOptCode ~= "std.getopt.config.caseSensitive,";
-			}
+				string commandLineName = attrValues.name;
+				immutable string callbackFuncName = attrValues.func;
 
-			static if(callbackAttribute.length == 1)
-			{
+				static if(hasUDA!(T, GetOptCaseSensitive))
+				{
+					getOptCode ~= "std.getopt.config.caseSensitive,";
+				}
+
 				static if(hasUDA!(T, GetOptRequired))
 				{
 					getOptCode ~= format(q{
@@ -150,31 +151,27 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 			}
 			static if(hasUDA!(mixin("T." ~ field), GetOptCallback))
 			{
-				immutable auto attr = getUDAs!(mixin("T." ~ field), GetOptCallback);
-				string name = attr[0].name;
-				immutable string funcName = attr[0].func;
+				immutable auto memberCallbackAttributes = getUDAs!(mixin("T." ~ field), GetOptCallback);
 
-				static if(hasUDA!(mixin("T." ~ field), GetOptCaseSensitive))
+				foreach(attrValues; memberCallbackAttributes)
 				{
-					getOptCode ~= "std.getopt.config.caseSensitive,";
-				}
+					string commandLineName = attrValues.name;
+					immutable string callbackFuncName = attrValues.func;
 
-				if(!name.length)
-				{
-					name = field;
-				}
+					static if(hasUDA!(mixin("T." ~ field), GetOptCaseSensitive))
+					{
+						getOptCode ~= "std.getopt.config.caseSensitive,";
+					}
 
-				static if(attr.length == 1)
-				{
 					static if(hasUDA!(mixin("T." ~ field), GetOptRequired))
 					{
 						getOptCode ~= format(q{
 							std.getopt.config.required, "%s", &%s.%s,
-						}, name, modName, funcName);
+						}, commandLineName, modName, callbackFuncName);
 					}
 					else
 					{
-						getOptCode ~= format(q{ "%s", &%s.%s, }, name, modName, funcName);
+						getOptCode ~= format(q{ "%s", &%s.%s, }, commandLineName, modName, callbackFuncName);
 					}
 				}
 			}
