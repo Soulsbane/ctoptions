@@ -55,6 +55,32 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 		auto helpInformation = getopt(arguments, "name", "The name of the program",
 			&options.name, "id", "The id of the program", &options.id);
 	*/
+	struct GetOptCodeGenerator
+	{
+		static string generateGlobalOptions()
+		{
+			string getOptCode;
+			return getOptCode;
+		}
+
+		static string generateOptions()
+		{
+			string getOptCode;
+			return getOptCode;
+		}
+
+		static string generateCallbacks()
+		{
+			string getOptCode;
+			return getOptCode;
+		}
+
+		static string generateTopLevelCallbacks()
+		{
+			string getOptCode;
+			return getOptCode;
+		}
+	}
 
 	string wrapped()
 	{
