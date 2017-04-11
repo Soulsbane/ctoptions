@@ -11,7 +11,6 @@ import std.string;
 import std.range;
 import std.conv;
 
-
 ///The attribute used for marking members
 struct GetOptOptions
 {
@@ -55,71 +54,99 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 		auto helpInformation = getopt(arguments, "name", "The name of the program",
 			&options.name, "id", "The id of the program", &options.id);
 	*/
+
+	import std.traits, std.format;
+
 	struct GetOptCodeGenerator
 	{
 		static string generateGlobalOptions()
 		{
-			string getOptCode;
+			static if(hasUDA!(T, GetOptPassThru))
+			{
+				string getOptCode = "import " ~ modName ~ ";";
+				getOptCode ~= "auto helpInformation = getopt(arguments, std.getopt.config.passThrough, ";
+			}
+			else
+			{
+				string getOptCode = "import " ~ modName ~ ";";
+				getOptCode ~= "auto helpInformation = getopt(arguments, ";
+			}
+
+			static if(hasUDA!(T, GetOptStopOnFirst))
+			{
+				getOptCode ~= "std.getopt.config.stopOnFirstNonOption,";
+			}
+
+			static if(hasUDA!(T, GetOptBundling))
+			{
+				getOptCode ~= "std.getopt.config.bundling,";
+			}
+
 			return getOptCode;
 		}
 
-		static string generateOptions()
+		static string generateOptions(alias field)()
 		{
 			string getOptCode;
+			auto attr = getUDAs!(mixin("T." ~ field), GetOptOptions);
+			string shortName = attr[0].shortName;
+			string name = attr[0].name;
+
+			static if(hasUDA!(mixin("T." ~ field), GetOptCaseSensitive))
+			{
+				getOptCode ~= "std.getopt.config.caseSensitive,";
+			}
+
+			if(shortName.length)
+			{
+				shortName = "|" ~ shortName;
+			}
+			else
+			{
+				shortName = string.init;
+			}
+
+			if(!name.length)
+			{
+				name = field;
+			}
+
+			static if(attr.length == 1)
+			{
+				static if(hasUDA!(mixin("T." ~ field), GetOptRequired))
+				{
+					getOptCode ~= format(q{
+						std.getopt.config.required, "%s%s", "%s", &%s.%s,
+					}, name, shortName, attr[0].description, varName, field);
+				}
+				else
+				{
+					getOptCode ~= format(q{
+						"%s%s", "%s", &%s.%s,
+					}, name, shortName, attr[0].description, varName, field);
+				}
+			}
+
 			return getOptCode;
 		}
 
-		static string generateCallbacks()
+		static string generateCallbacks(alias field)()
 		{
 			string getOptCode;
-			return getOptCode;
-		}
 
-		static string generateTopLevelCallbacks()
-		{
-			string getOptCode;
-			return getOptCode;
-		}
-	}
+			immutable auto memberCallbackAttributes = getUDAs!(mixin("T." ~ field), GetOptCallback);
 
-	string wrapped()
-	{
-		static if(hasUDA!(T, GetOptPassThru))
-		{
-			string getOptCode = "import " ~ modName ~ ";";
-			getOptCode ~= "auto helpInformation = getopt(arguments, std.getopt.config.passThrough, ";
-		}
-		else
-		{
-			string getOptCode = "import " ~ modName ~ ";";
-			getOptCode ~= "auto helpInformation = getopt(arguments, ";
-		}
-
-		static if(hasUDA!(T, GetOptStopOnFirst))
-		{
-			getOptCode ~= "std.getopt.config.stopOnFirstNonOption,";
-		}
-
-		static if(hasUDA!(T, GetOptBundling))
-		{
-			getOptCode ~= "std.getopt.config.bundling,";
-		}
-
-		static if(hasUDA!(T, GetOptCallback))
-		{
-			immutable auto callbackAttributes = getUDAs!(T, GetOptCallback);
-
-			foreach(attrValues; callbackAttributes)
+			foreach(attrValues; memberCallbackAttributes)
 			{
 				string commandLineName = attrValues.name;
 				immutable string callbackFuncName = attrValues.func;
 
-				static if(hasUDA!(T, GetOptCaseSensitive))
+				static if(hasUDA!(mixin("T." ~ field), GetOptCaseSensitive))
 				{
 					getOptCode ~= "std.getopt.config.caseSensitive,";
 				}
 
-				static if(hasUDA!(T, GetOptRequired))
+				static if(hasUDA!(mixin("T." ~ field), GetOptRequired))
 				{
 					getOptCode ~= format(q{
 						std.getopt.config.required, "%s", &%s.%s,
@@ -130,66 +157,29 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 					getOptCode ~= format(q{ "%s", &%s.%s, }, commandLineName, modName, callbackFuncName);
 				}
 			}
+
+			return getOptCode;
 		}
 
-		foreach(field; __traits(allMembers, T))
+		static string generateTopLevelCallbacks()
 		{
-			static if(hasUDA!(mixin("T." ~ field), GetOptOptions))
+			string getOptCode;
+
+			static if(hasUDA!(T, GetOptCallback))
 			{
-				auto attr = getUDAs!(mixin("T." ~ field), GetOptOptions);
-				string shortName = attr[0].shortName;
-				string name = attr[0].name;
+				immutable auto callbackAttributes = getUDAs!(T, GetOptCallback);
 
-				static if(hasUDA!(mixin("T." ~ field), GetOptCaseSensitive))
-				{
-					getOptCode ~= "std.getopt.config.caseSensitive,";
-				}
-
-				if(shortName.length)
-				{
-					shortName = "|" ~ shortName;
-				}
-				else
-				{
-					shortName = string.init;
-				}
-
-				if(!name.length)
-				{
-					name = field;
-				}
-
-				static if(attr.length == 1)
-				{
-					static if(hasUDA!(mixin("T." ~ field), GetOptRequired))
-					{
-						getOptCode ~= format(q{
-							std.getopt.config.required, "%s%s", "%s", &%s.%s,
-						}, name, shortName, attr[0].description, varName, field);
-					}
-					else
-					{
-						getOptCode ~= format(q{
-							"%s%s", "%s", &%s.%s,
-						}, name, shortName, attr[0].description, varName, field);
-					}
-				}
-			}
-			static if(hasUDA!(mixin("T." ~ field), GetOptCallback))
-			{
-				immutable auto memberCallbackAttributes = getUDAs!(mixin("T." ~ field), GetOptCallback);
-
-				foreach(attrValues; memberCallbackAttributes)
+				foreach(attrValues; callbackAttributes)
 				{
 					string commandLineName = attrValues.name;
 					immutable string callbackFuncName = attrValues.func;
 
-					static if(hasUDA!(mixin("T." ~ field), GetOptCaseSensitive))
+					static if(hasUDA!(T, GetOptCaseSensitive))
 					{
 						getOptCode ~= "std.getopt.config.caseSensitive,";
 					}
 
-					static if(hasUDA!(mixin("T." ~ field), GetOptRequired))
+					static if(hasUDA!(T, GetOptRequired))
 					{
 						getOptCode ~= format(q{
 							std.getopt.config.required, "%s", &%s.%s,
@@ -200,6 +190,26 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 						getOptCode ~= format(q{ "%s", &%s.%s, }, commandLineName, modName, callbackFuncName);
 					}
 				}
+			}
+
+			return getOptCode;
+		}
+	}
+
+	string createGetOptMixinString()
+	{
+		string getOptCode = GetOptCodeGenerator.generateGlobalOptions();
+		getOptCode ~= GetOptCodeGenerator.generateTopLevelCallbacks();
+
+		foreach(field; __traits(allMembers, T))
+		{
+			static if(hasUDA!(mixin("T." ~ field), GetOptOptions))
+			{
+				getOptCode ~= GetOptCodeGenerator.generateOptions!field;
+			}
+			static if(hasUDA!(mixin("T." ~ field), GetOptCallback))
+			{
+				getOptCode ~= GetOptCodeGenerator.generateCallbacks!field;
 			}
 		}
 
@@ -214,7 +224,7 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 		return getOptCode;
 	}
 
-	mixin(wrapped);
+	mixin(createGetOptMixinString);
 }
 
 class GetOptMixinException: Exception
