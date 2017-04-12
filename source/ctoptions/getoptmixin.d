@@ -27,13 +27,11 @@ struct GetOptCallback
 
 alias GetOptDescription = GetOptOptions;
 
-//FIXME: According to what I've read only the enum <name> part is needed; but it fails unless it's assigned a value.
 enum GetOptRequired = "GetOptRequired";
 enum GetOptPassThru = "GetOptPassThru";
 enum GetOptStopOnFirst = "GetOptStopOnFirst";
 enum GetOptBundling = "GetOptBundling";
 enum GetOptCaseSensitive = "GetOptCaseSensitive";
-//TODO: Add support for other getopt options: http://dlang.org/phobos/std_getopt.html#.config
 
 alias CustomHelpFunction = void function(string text, Option[] opt);
 
