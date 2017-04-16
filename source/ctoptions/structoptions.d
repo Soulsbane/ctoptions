@@ -3,18 +3,9 @@
 */
 module ctoptions.structoptions;
 
-import std.traits;
-import std.typecons;
-import std.typetuple;
-import std.conv;
-import std.string;
-import std.file;
-import std.algorithm;
-import std.array;
-import std.getopt;
-import std.stdio;
-import std.string;
-import std.uni;
+import std.traits, std.typecons, std.typetuple, std.conv;
+import std.string, std.file, std.algorithm, std.array;
+import std.getopt, std.stdio, std.string, std.uni;
 
 private enum DEFAULT_CONFIG_FILE_NAME = "app.config";
 
