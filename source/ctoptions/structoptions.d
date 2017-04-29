@@ -118,6 +118,22 @@ struct StructOptions(T)
 	}
 
 	/**
+		Creates a config file containing default values of passed struct.
+
+		Params:
+			fileName = The name of the file to save to.
+	*/
+	void createDefaultFile(const string fileName, const bool forceRecreate = false)
+	{
+		if(forceRecreate)
+		{
+			fileName.remove();
+		}
+
+		save(fileName);
+	}
+
+	/**
 		Retrieves the value  associated with key where T is the designated type to be converted to.
 
 		Params:
