@@ -3,9 +3,11 @@
 */
 module ctoptions.structoptions;
 
+import std.traits : isFloatingPoint;
+
 import std.traits, std.typecons, std.typetuple, std.conv;
 import std.string, std.file, std.algorithm, std.array;
-import std.getopt, std.stdio, std.string, std.uni;
+import std.getopt, std.stdio, std.string, std.uni, std.math;
 
 private enum DEFAULT_CONFIG_FILE_NAME = "app.config";
 
@@ -112,7 +114,23 @@ struct StructOptions(T)
 
 			foreach(field; __traits(allMembers, T))
 			{
-				keyValueData ~= field ~ " = " ~ mixin("to!string(data_." ~ field ~ ")") ~ "\n";
+				immutable string strType = typeof(mixin("T." ~ field)).stringof;
+
+				static if(mixin("isFloatingPoint!" ~ strType))
+				{
+					if(mixin("isNaN(data_." ~ field ~ ")"))
+					{
+						keyValueData ~= field ~ " = 0.0\n";
+					}
+					else
+					{
+						keyValueData ~= field ~ " = " ~ mixin("to!string(data_." ~ field ~ ")") ~ "\n";
+					}
+				}
+				else
+				{
+					keyValueData ~= field ~ " = " ~ mixin("to!string(data_." ~ field ~ ")") ~ "\n";
+				}
 			}
 
 			configFile.write(keyValueData);
