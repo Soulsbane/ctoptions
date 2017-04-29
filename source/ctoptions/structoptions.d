@@ -9,6 +9,8 @@ import std.getopt, std.stdio, std.string, std.uni;
 
 private enum DEFAULT_CONFIG_FILE_NAME = "app.config";
 
+
+
 /**
 	Used for the creation of key/value configuration format.
 */
@@ -173,7 +175,7 @@ struct StructOptions(T)
 			key = Name of the key to set.
 			value = The value of key.
 	*/
-	void set(S)(const string key, const S value) pure @safe
+	void set(S)(const string key, const S value) @safe
 	{
 		foreach(field; __traits(allMembers, T))
 		{
@@ -209,7 +211,7 @@ struct StructOptions(T)
 		return false;
 	}
 
-	void opIndexAssign(T)(T value, const string key) pure @safe
+	void opIndexAssign(T)(T value, const string key) @safe
 	{
 		set(key, value);
 	}
@@ -283,7 +285,7 @@ private string generateAsMethodNameCode(T)()
 		immutable string memNameCapitalized = memName[0].toUpper.to!string ~ memName[1..$];
 
 		code ~= format(q{
-			%s get%s(const %s defaultValue = %s.init) pure @safe
+			%s get%s(const %s defaultValue = %s.init) @safe
 			{
 				return as!(%s, "%s")(defaultValue);
 			}
@@ -321,7 +323,7 @@ private string generateSetMethodNameCode(T)()
 		immutable string memNameCapitalized = memName[0].toUpper.to!string ~ memName[1..$];
 
 		code ~= format(q{
-			void set%s(const %s value) pure @safe
+			void set%s(const %s value) @safe
 			{
 				return set("%s", value);
 			}
