@@ -23,6 +23,7 @@ struct GetOptCallback
 {
 	string name;
 	string func;
+	string object;
 }
 
 alias GetOptDescription = GetOptOptions;
@@ -138,6 +139,17 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 			{
 				string commandLineName = attrValues.name;
 				immutable string callbackFuncName = attrValues.func;
+				string objectName = attrValues.object;
+				string callback;
+
+				if(objectName.length)
+				{
+					callback = objectName ~ "." ~ callbackFuncName;
+				}
+				else
+				{
+					callback = modName ~ "." ~ callbackFuncName;
+				}
 
 				static if(hasUDA!(mixin("T." ~ field), GetOptCaseSensitive))
 				{
@@ -147,12 +159,12 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 				static if(hasUDA!(mixin("T." ~ field), GetOptRequired))
 				{
 					getOptCode ~= format(q{
-						std.getopt.config.required, "%s", &%s.%s,
-					}, commandLineName, modName, callbackFuncName);
+						std.getopt.config.required, "%s", &%s,
+					}, commandLineName, callback);
 				}
 				else
 				{
-					getOptCode ~= format(q{ "%s", &%s.%s, }, commandLineName, modName, callbackFuncName);
+					getOptCode ~= format(q{ "%s", &%s, }, commandLineName, callback);
 				}
 			}
 
@@ -171,6 +183,17 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 				{
 					string commandLineName = attrValues.name;
 					immutable string callbackFuncName = attrValues.func;
+					string objectName = attrValues.object;
+					string callback;
+
+					if(objectName.length)
+					{
+						callback = objectName ~ "." ~ callbackFuncName;
+					}
+					else
+					{
+						callback = modName ~ "." ~ callbackFuncName;
+					}
 
 					static if(hasUDA!(T, GetOptCaseSensitive))
 					{
@@ -180,12 +203,12 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 					static if(hasUDA!(T, GetOptRequired))
 					{
 						getOptCode ~= format(q{
-							std.getopt.config.required, "%s", &%s.%s,
-						}, commandLineName, modName, callbackFuncName);
+							std.getopt.config.required, "%s", &%s,
+						}, commandLineName, callback);
 					}
 					else
 					{
-						getOptCode ~= format(q{ "%s", &%s.%s, }, commandLineName, modName, callbackFuncName);
+						getOptCode ~= format(q{ "%s", &%s, }, commandLineName, callback);
 					}
 				}
 			}
