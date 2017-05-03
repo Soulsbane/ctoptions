@@ -316,3 +316,54 @@ void generateGetOptCode(T, string varName = "options", string modName = __MODULE
 		throw new GetOptMixinException(ex.msg);
 	}
 }
+
+class GetOptCodeGenerator(T, string varName = "options", string modName = __MODULE__)
+{
+	void generate(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
+	{
+		try
+		{
+			///INFO: The options parameter is used in a string mixin with this call.
+			mixin GetOptMixin!(T, varName, modName);
+
+			if(helpInformation.helpWanted)
+			{
+				onHelp(helpInformation, func);
+			}
+			else
+			{
+				onValidArgument();
+			}
+		}
+		catch(GetOptException ex) // Called when unknown arg ie --flag is mispelled --flagg
+		{
+			onUnknownArgument(ex.msg);
+		}
+		catch(ConvException ex) // Called when argument is passed a wrong type. int id; --id=hi
+		{
+			onInvalidArgument(ex.msg);
+		}
+		catch(Exception ex)
+		{
+			onInvalidArgument(ex.msg);
+		}
+	}
+
+	void onHelp(GetoptResult helpInformation, CustomHelpFunction func = &defaultGetoptPrinter)
+	{
+		func("The following options are available:", helpInformation.options);
+	}
+
+	void onValidArgument() {}
+
+	void onUnknownArgument(const string msg)
+	{
+		writeln(msg, ". For a list of available commands use --help.");
+	}
+
+	void onInvalidArgument(const string msg)
+	{
+		writeln("Invalid Argument!");
+		writeln(msg);
+	}
+}
