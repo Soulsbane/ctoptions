@@ -323,16 +323,23 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 	{
 		try
 		{
-			///INFO: The options parameter is used in a string mixin with this call.
-			mixin GetOptMixin!(T, varName, modName);
-
-			if(helpInformation.helpWanted)
+			if(arguments.length == 1)
 			{
-				onHelp(helpInformation, func);
+				onNoArguments();
 			}
 			else
 			{
-				onValidArgument();
+				///INFO: The options parameter is used in a string mixin with this call.
+				mixin GetOptMixin!(T, varName, modName);
+
+				if(helpInformation.helpWanted)
+				{
+					onHelp(helpInformation, func);
+				}
+				else
+				{
+					onValidArgument();
+				}
 			}
 		}
 		catch(GetOptException ex) // Called when unknown arg ie --flag is mispelled --flagg
@@ -348,6 +355,8 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 			onInvalidArgument(ex.msg);
 		}
 	}
+
+	void onNoArguments() {}
 
 	void onHelp(GetoptResult helpInformation, CustomHelpFunction func = &defaultGetoptPrinter)
 	{
