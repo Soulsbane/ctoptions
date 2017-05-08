@@ -455,7 +455,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 private:
 	void initializeCallbacks()
 	{
-		if(!callbacksInitialized)
+		if(!callbacksInitialized_)
 		{
 			onNoArguments_ = &onNoArguments;
 			onValidArgument_ = &onValidArgument;
@@ -463,7 +463,7 @@ private:
 			onInvalidArgument_ = &onInvalidArgument;
 			onHelp_ = &onHelp;
 
-			callbacksInitialized = true;
+			callbacksInitialized_ = true;
 		}
 	}
 
@@ -474,5 +474,5 @@ private:
 	Callback!InvalidDelegate onInvalidArgument_;
 	Callback!HelpDelegate onHelp_;
 
-	bool callbacksInitialized;
+	bool callbacksInitialized_;
 }
