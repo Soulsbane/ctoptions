@@ -349,10 +349,7 @@ private struct Callback(T)
 
 	void set(T callback) pure @safe
 	{
-		if(!isSet())
-		{
-			callback_ = callback;
-		}
+		callback_ = callback;
 	}
 
 	T get()
@@ -439,36 +436,35 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 		writeln(msg);
 	}
 
-	void setCallback(Func)(const string name, Func func)
+	void setCallback(alias name, Func)(Func func)
 	{
-		final switch(name)
-		{
-			case "onNoArguments":
-				onNoArguments_ = func;
-				break;
-			case "onValidArgument":
-				onValidArgument_ = func;
-				break;
-			case "onUnknownArgument":
-				onUnknownArgument_ = func;
-				break;
-			case "onInvalidArgument":
-				onInvalidArgument_ = func;
-				break;
-			case "onHelp":
-				onHelp = func;
-				break;
-		}
+		initializeCallbacks();
+
+		static if(name == "onNoArguments")
+			onNoArguments_ = func;
+		static if(name == "onValidArgument")
+			onValidArgument_ = func;
+		static if(name == "onUnknownArgument")
+			onUnknownArgument_ = func;
+		static if(name == "onInvalidArgument")
+			onInvalidArgument_ = func;
+		static if(name == "onHelp")
+			onHelp = func;
 	}
 
 private:
 	void initializeCallbacks()
 	{
-		onNoArguments_ = &onNoArguments;
-		onValidArgument_ = &onValidArgument;
-		onUnknownArgument_ = &onUnknownArgument;
-		onInvalidArgument_ = &onInvalidArgument;
-		onHelp_ = &onHelp;
+		if(!callbacksInitialized)
+		{
+			onNoArguments_ = &onNoArguments;
+			onValidArgument_ = &onValidArgument;
+			onUnknownArgument_ = &onUnknownArgument;
+			onInvalidArgument_ = &onInvalidArgument;
+			onHelp_ = &onHelp;
+
+			callbacksInitialized = true;
+		}
 	}
 
 private:
@@ -477,4 +473,6 @@ private:
 	Callback!InvalidDelegate onUnknownArgument_;
 	Callback!InvalidDelegate onInvalidArgument_;
 	Callback!HelpDelegate onHelp_;
+
+	bool callbacksInitialized;
 }
