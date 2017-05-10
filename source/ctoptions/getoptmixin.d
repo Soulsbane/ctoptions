@@ -449,7 +449,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 		static if(name == "onInvalidArgument")
 			onInvalidArgument_ = func;
 		static if(name == "onHelp")
-			onHelp = func;
+			onHelp_ = func;
 	}
 
 private:
