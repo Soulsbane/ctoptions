@@ -402,7 +402,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 				}
 			}
 		}
-		catch(GetOptException ex) // Called when unknown arg ie --flag is mispelled --flagg
+		catch(GetOptException ex) // Called when arg is missing it's value. id=10 but the 10 is left out.
 		{
 			onUnknownArgument_(ex.msg);
 		}
@@ -416,7 +416,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 		}
 	}
 
-	void onNoArguments() { writeln("GetOptCodeGenerator.onNoArguments"); }
+	void onNoArguments() { }
 
 	void onHelp(GetoptResult helpInformation, CustomHelpFunction func = &defaultGetoptPrinter)
 	{
