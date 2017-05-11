@@ -398,7 +398,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 				}
 				else
 				{
-					onValidArgument_();
+					onValidArguments_();
 				}
 			}
 		}
@@ -423,7 +423,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 		func("The following options are available:", helpInformation.options);
 	}
 
-	void onValidArgument() {}
+	void onValidArguments() {}
 
 	void onUnknownArgument(const string msg)
 	{
@@ -442,8 +442,8 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 
 		static if(name == "onNoArguments")
 			onNoArguments_ = func;
-		static if(name == "onValidArgument")
-			onValidArgument_ = func;
+		static if(name == "onValidArguments")
+			onValidArguments_ = func;
 		static if(name == "onUnknownArgument")
 			onUnknownArgument_ = func;
 		static if(name == "onInvalidArgument")
@@ -458,7 +458,7 @@ private:
 		if(!callbacksInitialized_)
 		{
 			onNoArguments_ = &onNoArguments;
-			onValidArgument_ = &onValidArgument;
+			onValidArguments_ = &onValidArguments;
 			onUnknownArgument_ = &onUnknownArgument;
 			onInvalidArgument_ = &onInvalidArgument;
 			onHelp_ = &onHelp;
@@ -469,7 +469,7 @@ private:
 
 private:
 	Callback!VoidDelegate onNoArguments_;
-	Callback!VoidDelegate onValidArgument_;
+	Callback!VoidDelegate onValidArguments_;
 	Callback!InvalidDelegate onUnknownArgument_;
 	Callback!InvalidDelegate onInvalidArgument_;
 	Callback!HelpDelegate onHelp_;
