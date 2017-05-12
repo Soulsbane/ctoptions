@@ -3,7 +3,8 @@
 */
 module ctoptions.getoptmixin;
 
-import std.getopt;
+public import std.getopt;
+
 import std.traits;
 import std.stdio;
 import std.format;
@@ -375,7 +376,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 {
 	private alias VoidDelegate = void delegate();
 	private alias InvalidDelegate = void delegate(const string);
-	private alias HelpDelegate = void delegate(GetoptResult, CustomHelpFunction);
+	private alias HelpDelegate = void delegate(Option[]);
 
 	void generate(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 	{
@@ -394,7 +395,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 
 				if(helpInformation.helpWanted)
 				{
-					onHelp_(helpInformation, func);
+					onHelp_(helpInformation.options);
 				}
 				else
 				{
@@ -418,9 +419,9 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 
 	void onNoArguments() { }
 
-	void onHelp(GetoptResult helpInformation, CustomHelpFunction func = &defaultGetoptPrinter)
+	void onHelp(Option[] options)
 	{
-		func("The following options are available:", helpInformation.options);
+		defaultGetoptPrinter("The following options are available:", options);
 	}
 
 	void onValidArguments() {}
