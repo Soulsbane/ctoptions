@@ -318,60 +318,6 @@ void generateGetOptCode(T, string varName = "options", string modName = __MODULE
 	}
 }
 
-private struct Callback(T)
-{
-	ReturnType!T opCall(Args...)(Args args)
-	{
-		static if(is(ReturnType!T == void))
-		{
-			if(callback_)
-			{
-				callback_(args);
-			}
-		}
-		else
-		{
-			ReturnType!T value;
-
-			if(callback_)
-			{
-				value = callback_(args);
-			}
-
-			return value;
-		}
-	}
-
-	Callback opAssign(T callback) pure @safe
-	{
-		set(callback);
-		return this;
-	}
-
-	void set(T callback) pure @safe
-	{
-		callback_ = callback;
-	}
-
-	T get()
-	{
-		return callback_;
-	}
-
-	bool isSet() pure const @safe
-	{
-		if(callback_)
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-private:
-	T callback_;
-}
-
 class GetOptCodeGenerator(T, string varName = "options", string modName = __MODULE__)
 {
 	private alias VoidDelegate = void delegate();
@@ -469,11 +415,11 @@ private:
 	}
 
 private:
-	Callback!VoidDelegate onNoArguments_;
-	Callback!VoidDelegate onValidArguments_;
-	Callback!InvalidDelegate onUnknownArgument_;
-	Callback!InvalidDelegate onInvalidArgument_;
-	Callback!HelpDelegate onHelp_;
+	VoidDelegate onNoArguments_;
+	VoidDelegate onValidArguments_;
+	InvalidDelegate onUnknownArgument_;
+	InvalidDelegate onInvalidArgument_;
+	HelpDelegate onHelp_;
 
 	bool callbacksInitialized_;
 }
