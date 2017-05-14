@@ -324,10 +324,13 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 	private alias InvalidDelegate = void delegate(const string);
 	private alias HelpDelegate = void delegate(Option[]);
 
-	void generate(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
+	this()
 	{
 		initializeCallbacks();
+	}
 
+	void generate(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
+	{
 		try
 		{
 			if(arguments.length == 1)
@@ -385,8 +388,6 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 
 	void setCallback(alias name, Func)(Func func)
 	{
-		initializeCallbacks();
-
 		static if(name == "onNoArguments")
 			onNoArguments_ = func;
 		static if(name == "onValidArguments")
