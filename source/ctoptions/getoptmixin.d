@@ -392,7 +392,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 		static if(name == "onNoArguments")
 			onNoArguments_ = toDelegate(func);
 		static if(name == "onValidArguments")
-			onValidArguments_ = toDelegate(func);;
+			onValidArguments_ = toDelegate(func);
 		static if(name == "onUnknownArgument")
 			onUnknownArgument_ = toDelegate(func);
 		static if(name == "onInvalidArgument")
