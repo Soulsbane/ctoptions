@@ -11,6 +11,7 @@ import std.format;
 import std.string;
 import std.range;
 import std.conv;
+import std.functional;
 
 ///The attribute used for marking members
 struct GetOptOptions
@@ -389,15 +390,15 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 	void setCallback(alias name, Func)(Func func)
 	{
 		static if(name == "onNoArguments")
-			onNoArguments_ = func;
+			onNoArguments_ = toDelegate(func);
 		static if(name == "onValidArguments")
-			onValidArguments_ = func;
+			onValidArguments_ = toDelegate(func);;
 		static if(name == "onUnknownArgument")
-			onUnknownArgument_ = func;
+			onUnknownArgument_ = toDelegate(func);
 		static if(name == "onInvalidArgument")
-			onInvalidArgument_ = func;
+			onInvalidArgument_ = toDelegate(func);
 		static if(name == "onHelp")
-			onHelp_ = func;
+			onHelp_ = toDelegate(func);
 	}
 
 private:
