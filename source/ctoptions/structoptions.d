@@ -91,50 +91,37 @@ struct StructOptions(T)
 	}
 
 	/**
-		Saves config values to the config file to fileName.
-
-		Params:
-			fileName = The name of the file to save to.
+		Saves config values to the specified config file name.
 	*/
-	void save(const string fileName) @safe
+	void save(const string fileName = DEFAULT_CONFIG_FILE_NAME) @safe
 	{
 		configFileName_ = fileName;
-		save();
-	}
 
-	/**
-		Saves config values to the config file.
-	*/
-	void save() @safe
-	{
-		if(configFileName_.length)
+		auto configFile = File(configFileName_, "w+");
+		string keyValueData;
+
+		foreach(field; __traits(allMembers, T))
 		{
-			auto configFile = File(configFileName_, "w+");
-			string keyValueData;
+			immutable string strType = typeof(mixin("T." ~ field)).stringof;
 
-			foreach(field; __traits(allMembers, T))
+			static if(mixin("isFloatingPoint!" ~ strType))
 			{
-				immutable string strType = typeof(mixin("T." ~ field)).stringof;
-
-				static if(mixin("isFloatingPoint!" ~ strType))
+				if(mixin("isNaN(data_." ~ field ~ ")"))
 				{
-					if(mixin("isNaN(data_." ~ field ~ ")"))
-					{
-						keyValueData ~= field ~ " = 0.0\n";
-					}
-					else
-					{
-						keyValueData ~= field ~ " = " ~ mixin("to!string(data_." ~ field ~ ")") ~ "\n";
-					}
+					keyValueData ~= field ~ " = 0.0\n";
 				}
 				else
 				{
 					keyValueData ~= field ~ " = " ~ mixin("to!string(data_." ~ field ~ ")") ~ "\n";
 				}
 			}
-
-			configFile.write(keyValueData);
+			else
+			{
+				keyValueData ~= field ~ " = " ~ mixin("to!string(data_." ~ field ~ ")") ~ "\n";
+			}
 		}
+
+		configFile.write(keyValueData);
 	}
 
 	/**
