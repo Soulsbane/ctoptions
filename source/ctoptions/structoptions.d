@@ -4,14 +4,11 @@
 module ctoptions.structoptions;
 
 import std.traits : isFloatingPoint;
-
 import std.traits, std.typecons, std.typetuple, std.conv;
 import std.string, std.file, std.algorithm, std.array;
 import std.getopt, std.stdio, std.string, std.uni, std.math;
 
 private enum DEFAULT_CONFIG_FILE_NAME = "app.config";
-
-
 
 /**
 	Used for the creation of key/value configuration format.
