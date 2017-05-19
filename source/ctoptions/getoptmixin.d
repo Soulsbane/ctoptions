@@ -58,7 +58,7 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 
 	import std.traits, std.format;
 
-	struct GetOptCodeGenerator
+	struct GetOptMixinStringGenerator
 	{
 		static string generateGlobalOptions()
 		{
@@ -221,18 +221,18 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 
 	string createGetOptMixinString()
 	{
-		string getOptCode = GetOptCodeGenerator.generateGlobalOptions();
-		getOptCode ~= GetOptCodeGenerator.generateTopLevelCallbacks();
+		string getOptCode = GetOptMixinStringGenerator.generateGlobalOptions();
+		getOptCode ~= GetOptMixinStringGenerator.generateTopLevelCallbacks();
 
 		foreach(field; __traits(allMembers, T))
 		{
 			static if(hasUDA!(mixin("T." ~ field), GetOptOptions))
 			{
-				getOptCode ~= GetOptCodeGenerator.generateOptions!field;
+				getOptCode ~= GetOptMixinStringGenerator.generateOptions!field;
 			}
 			static if(hasUDA!(mixin("T." ~ field), GetOptCallback))
 			{
-				getOptCode ~= GetOptCodeGenerator.generateCallbacks!field;
+				getOptCode ~= GetOptMixinStringGenerator.generateCallbacks!field;
 			}
 		}
 
