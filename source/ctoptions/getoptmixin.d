@@ -250,7 +250,7 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 	mixin(createGetOptMixinString);
 }
 
-class GetOptMixinException: Exception
+class GetOptMixinException : Exception
 {
 	public
 	{
