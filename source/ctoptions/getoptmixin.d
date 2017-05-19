@@ -367,26 +367,48 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 		}
 	}
 
+	/**
+		Called when no arguments are passed to the command line.
+	*/
 	void onNoArguments() { }
 
+	/**
+		Called when --help is passed to the command line.
+	*/
 	void onHelp(Option[] options)
 	{
 		defaultGetoptPrinter("The following options are available:", options);
 	}
 
+	/**
+		Called when all arguments containing no errors are passed to the command line.
+	*/
 	void onValidArguments() {}
 
+	/**
+		Called when an argument is missing it's value. Example: <applicationName> --id=10 but the 10 is left out.
+	*/
 	void onUnknownArgument(const string msg)
 	{
 		writeln(msg, ". For a list of available commands use --help.");
 	}
 
+	/**
+		Called when an argument is passed a wrong type. Example: int id; --id=hello
+	*/
 	void onInvalidArgument(const string msg)
 	{
 		writeln("Invalid Argument!");
 		writeln(msg);
 	}
 
+	/**
+		Allows callback methods in GetOptCodeGenerator to be overridden.
+
+		Params:
+			name = Name of the callback to override.
+			callback = the callback function/method to use.
+	*/
 	void setCallback(alias name, Func)(Func func)
 	{
 		static if(name == "onNoArguments")
