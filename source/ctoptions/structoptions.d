@@ -126,6 +126,7 @@ struct StructOptions(T)
 
 		Params:
 			fileName = The name of the file to save to.
+			forceRecreate = Remove old config file and replace it with a new one.
 	*/
 	void createDefaultFile(const string fileName, const bool forceRecreate = false)
 	{
