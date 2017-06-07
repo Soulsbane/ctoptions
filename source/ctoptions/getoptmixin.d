@@ -305,9 +305,10 @@ void generateGetOptCode(T, string varName = "options", string modName = __MODULE
 			func("The following options are available:", helpInformation.options);
 		}
 	}
+	///TODO: Parse out stack trace and only send a user readable message.
 	catch(GetOptException ex)
 	{
-		throw new GetOptMixinException(ex.msg, "For a list of available commands use --help.");
+		throw new GetOptMixinException(ex.msg  ~ ". For a list of available commands use --help.");
 	}
 	catch(ConvException ex)
 	{
