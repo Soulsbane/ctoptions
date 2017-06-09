@@ -269,6 +269,9 @@ class GetOptMixinException : Exception
 		options = The struct that will be used to generate getopt options from.
 		func = The function to call when --help is passed. defaultGetoptPrinter by default.
 
+	Returns:
+		A string containing the error text.
+
 	Examples:
 		import std.stdio;
 
@@ -292,7 +295,7 @@ class GetOptMixinException : Exception
 			writeln("after data.id => ", data.id);
 		}
 */
-void generateGetOptCode(T, string varName = "options", string modName = __MODULE__)
+string generateGetOptCode(T, string varName = "options", string modName = __MODULE__)
 	(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 {
 	try
@@ -308,16 +311,35 @@ void generateGetOptCode(T, string varName = "options", string modName = __MODULE
 	///TODO: Parse out stack trace and only send a user readable message.
 	catch(GetOptException ex)
 	{
-		throw new GetOptMixinException(ex.msg  ~ ". For a list of available commands use --help.");
+		immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
+		return message;
 	}
 	catch(ConvException ex)
 	{
-		throw new GetOptMixinException(ex.msg);
+		immutable string message = parseErrorText(ex.msg);
+		return message;
 	}
 	catch(Exception ex)
 	{
-		throw new GetOptMixinException(ex.msg);
+		immutable string message = parseErrorText(ex.msg);
+		return message;
 	}
+
+	return string.init;
+}
+
+string parseErrorText(const string exceptionText)
+{
+	import std.algorithm : splitter;
+
+	immutable auto lines = splitter(exceptionText, "\n").array;
+
+	if(lines.length >= 1)
+	{
+		return lines[0];
+	}
+
+	return string.init;
 }
 
 class GetOptCodeGenerator(T, string varName = "options", string modName = __MODULE__)
@@ -356,15 +378,18 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 		}
 		catch(GetOptException ex) // Called when arg is missing it's value. id=10 but the 10 is left out.
 		{
-			onUnknownArgument_(ex.msg);
+			immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
+			onUnknownArgument_(message);
 		}
 		catch(ConvException ex) // Called when argument is passed a wrong type. int id; --id=hi
 		{
-			onInvalidArgument_(ex.msg);
+			immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
+			onInvalidArgument_(message);
 		}
 		catch(Exception ex)
 		{
-			onInvalidArgument_(ex.msg);
+			immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
+			onInvalidArgument_(message);
 		}
 	}
 
