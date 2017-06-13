@@ -308,7 +308,6 @@ string generateGetOptCode(T, string varName = "options", string modName = __MODU
 			func("The following options are available:", helpInformation.options);
 		}
 	}
-	///TODO: Parse out stack trace and only send a user readable message.
 	catch(GetOptException ex)
 	{
 		immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
