@@ -229,6 +229,7 @@ struct StructOptions(T)
 
 	mixin(generateAsMethodNameCode!T());
 	mixin(generateSetMethodNameCode!T());
+	mixin(generateHasMethodNameCode!T);
 
 	T data_;
 
@@ -293,6 +294,55 @@ private string generateAsMethodNameCode(T)()
 				return as!(%s, "%s")(defaultValue);
 			}
 		}, memType, memNameCapitalized, memType, memType, memType, memName);
+	}
+
+	return code;
+}
+
+/**
+	This generates an accessor method based on a structs member names.
+	For example this struct:
+
+	struct Foo
+	{
+		size_t id;
+	}
+
+	will generate this code:
+
+	bool hasId(const ulong value = ulong.init) const pure nothrow @safe
+	{
+		if(data_.id == value)
+		{
+			return true;
+		}
+
+	return false;
+	}
+
+	it does this for each member of the struct.
+*/
+private string generateHasMethodNameCode(T)()
+{
+	string code;
+
+	foreach (i, memberType; typeof(T.tupleof))
+	{
+		immutable string memType = memberType.stringof;
+		immutable string memName = T.tupleof[i].stringof;
+		immutable string memNameCapitalized = memName[0].toUpper.to!string ~ memName[1..$];
+
+		code ~= format(q{
+			bool has%s(const %s value = %s.init) const pure nothrow @safe
+			{
+				if(data_.%s == value)
+				{
+					return true;
+				}
+
+				return false;
+			}
+		}, memNameCapitalized, memType, memType, memName);
 	}
 
 	return code;
@@ -367,6 +417,7 @@ unittest
 	options.asString!("id").should.equal("50");
 
 	//Sugar
+	options.hasId(50).should.equal(true);
 	options.getId(10).should.equal(50);
 	options.getName().should.equal("Paul");
 
@@ -415,4 +466,11 @@ unittest
 	irrNames.setId(1900);
 	irrNames.getTocField.should.equal("Setting toc field");
 	irrNames.getId.should.equal(1900);
+
+	/*struct Foo
+	{
+		size_t id;
+	}
+
+	writeln(generateHasMethodNameCode!Foo);*/
 }
