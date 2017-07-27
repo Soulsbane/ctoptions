@@ -343,22 +343,13 @@ string parseErrorText(const string exceptionText)
 
 class GetOptCodeGenerator(T, string varName = "options", string modName = __MODULE__)
 {
-	private alias VoidDelegate = void delegate();
-	private alias InvalidDelegate = void delegate(const string);
-	private alias HelpDelegate = void delegate(Option[]);
-
-	this()
-	{
-		initializeCallbacks();
-	}
-
 	void generate(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 	{
 		try
 		{
 			if(arguments.length == 1)
 			{
-				onNoArguments_();
+				onNoArguments();
 			}
 			else
 			{
@@ -367,28 +358,28 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 
 				if(helpInformation.helpWanted)
 				{
-					onHelp_(helpInformation.options);
+					onHelp(helpInformation.options);
 				}
 				else
 				{
-					onValidArguments_();
+					onValidArguments();
 				}
 			}
 		}
 		catch(GetOptException ex) // Called when arg is missing it's value. id=10 but the 10 is left out.
 		{
 			immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
-			onUnknownArgument_(message);
+			onUnknownArgument(message);
 		}
 		catch(ConvException ex) // Called when argument is passed a wrong type. int id; --id=hi
 		{
 			immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
-			onInvalidArgument_(message);
+			onInvalidArgument(message);
 		}
 		catch(Exception ex)
 		{
 			immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
-			onInvalidArgument_(message);
+			onInvalidArgument(message);
 		}
 	}
 
@@ -426,49 +417,4 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 		writeln("Invalid Argument!");
 		writeln(msg);
 	}
-
-	/**
-		Allows callback methods in GetOptCodeGenerator to be overridden.
-
-		Params:
-			name = Name of the callback to override.
-			callback = the callback function/method to use.
-	*/
-	void setCallback(alias name, Func)(Func func)
-	{
-		static if(name == "onNoArguments")
-			onNoArguments_ = toDelegate(func);
-		static if(name == "onValidArguments")
-			onValidArguments_ = toDelegate(func);
-		static if(name == "onUnknownArgument")
-			onUnknownArgument_ = toDelegate(func);
-		static if(name == "onInvalidArgument")
-			onInvalidArgument_ = toDelegate(func);
-		static if(name == "onHelp")
-			onHelp_ = toDelegate(func);
-	}
-
-private:
-	void initializeCallbacks()
-	{
-		if(!callbacksInitialized_)
-		{
-			onNoArguments_ = &onNoArguments;
-			onValidArguments_ = &onValidArguments;
-			onUnknownArgument_ = &onUnknownArgument;
-			onInvalidArgument_ = &onInvalidArgument;
-			onHelp_ = &onHelp;
-
-			callbacksInitialized_ = true;
-		}
-	}
-
-private:
-	VoidDelegate onNoArguments_;
-	VoidDelegate onValidArguments_;
-	InvalidDelegate onUnknownArgument_;
-	InvalidDelegate onInvalidArgument_;
-	HelpDelegate onHelp_;
-
-	bool callbacksInitialized_;
 }
