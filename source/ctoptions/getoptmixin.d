@@ -250,17 +250,6 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 	mixin(createGetOptMixinString);
 }
 
-class GetOptMixinException : Exception
-{
-	public
-	{
-		@safe pure nothrow this(string message, string file =__FILE__, size_t line = __LINE__, Throwable next = null)
-		{
-			super(message, file, line, next);
-		}
-	}
-}
-
 /**
 	Generates generic code for use in std.getopt.
 
