@@ -330,7 +330,7 @@ string parseErrorText(const string exceptionText)
 	return string.init;
 }
 
-class GetOptCodeGenerator(T, string varName = "options", string modName = __MODULE__)
+class GetOptCodeGenerator(T, string modName = __MODULE__)
 {
 	void generate(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 	{
@@ -343,7 +343,7 @@ class GetOptCodeGenerator(T, string varName = "options", string modName = __MODU
 			else
 			{
 				///INFO: The options parameter is used in a string mixin with this call.
-				mixin GetOptMixin!(T, varName, modName);
+				mixin GetOptMixin!(T, "options", modName);
 
 				if(helpInformation.helpWanted)
 				{
