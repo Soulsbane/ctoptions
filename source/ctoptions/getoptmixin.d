@@ -356,11 +356,38 @@ private string generateHasMethodNameCode(T)()
 	return code;
 }
 
+private string generateGetMethodNameCode(T)()
+{
+	string code;
+
+	foreach (i, memberType; typeof(T.tupleof))
+	{
+		immutable string memType = memberType.stringof;
+		immutable string memName = T.tupleof[i].stringof;
+		immutable string memNameCapitalized = memName[0].toUpper.to!string ~ memName[1..$];
+
+		code ~= format(q{
+			%s get%s(const %s defaultValue = %s.init) @safe
+			{
+				if(defaultValue != %s.init)
+				{
+					return getOptOptions_.%s;
+				}
+
+				return defaultValue;
+			}
+		}, memType, memNameCapitalized, memType, memType, memType, memName);
+	}
+
+	return code;
+}
+
 class GetOptCodeGenerator(T, string modName = __MODULE__, bool generateHelperMethods = true)
 {
 	static if(generateHelperMethods == true)
 	{
 		mixin(generateHasMethodNameCode!T);
+		mixin(generateGetMethodNameCode!T);
 	}
 
 	void generate(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
@@ -369,6 +396,7 @@ class GetOptCodeGenerator(T, string modName = __MODULE__, bool generateHelperMet
 		{
 			import std.stdio : writeln;
 			writeln(generateHasMethodNameCode!T);
+			writeln(generateGetMethodNameCode!T);
 		}
 
 		try
