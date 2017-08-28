@@ -330,10 +330,47 @@ string parseErrorText(const string exceptionText)
 	return string.init;
 }
 
-class GetOptCodeGenerator(T, string modName = __MODULE__)
+private string generateHasMethodNameCode(T)()
 {
+	string code;
+
+	foreach (i, memberType; typeof(T.tupleof))
+	{
+		immutable string memType = memberType.stringof;
+		immutable string memName = T.tupleof[i].stringof;
+		immutable string memNameCapitalized = memName[0].toUpper.to!string ~ memName[1..$];
+
+		code ~= format(q{
+			bool has%s() const pure nothrow @safe
+			{
+				if(getOptOptions_.%s == %s.init)
+				{
+					return false;
+				}
+
+				return true;
+			}
+		}, memNameCapitalized, memName, memType);
+	}
+
+	return code;
+}
+
+class GetOptCodeGenerator(T, string modName = __MODULE__, bool generateHelperMethods = true)
+{
+	static if(generateHelperMethods == true)
+	{
+		mixin(generateHasMethodNameCode!T);
+	}
+
 	void generate(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 	{
+		debug // This is temporary so we can check the generated code.
+		{
+			import std.stdio : writeln;
+			writeln(generateHasMethodNameCode!T);
+		}
+
 		try
 		{
 			if(arguments.length == 1)
@@ -344,6 +381,7 @@ class GetOptCodeGenerator(T, string modName = __MODULE__)
 			{
 				///INFO: The options parameter is used in a string mixin with this call.
 				mixin GetOptMixin!(T, "options", modName);
+				getOptOptions_ = options;
 
 				if(helpInformation.helpWanted)
 				{
@@ -406,4 +444,7 @@ class GetOptCodeGenerator(T, string modName = __MODULE__)
 		writeln("Invalid Argument!");
 		writeln(msg);
 	}
+
+private:
+	T getOptOptions_;
 }
