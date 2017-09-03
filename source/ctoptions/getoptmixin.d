@@ -316,6 +316,7 @@ string generateGetOptCode(T, string varName = "options", string modName = __MODU
 	return string.init;
 }
 
+// TODO: Better parsing especially when there is a type mismatch
 string parseErrorText(const string exceptionText)
 {
 	import std.algorithm : splitter;
