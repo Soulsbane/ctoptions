@@ -393,12 +393,12 @@ class GetOptCodeGenerator(T, string modName = __MODULE__, bool generateHelperMet
 
 	void generate(string[] arguments, ref T options, CustomHelpFunction func = &defaultGetoptPrinter)
 	{
-		debug // This is temporary so we can check the generated code.
+		/*debug // This is temporary so we can check the generated code.
 		{
 			import std.stdio : writeln;
 			writeln(generateHasMethodNameCode!T);
 			writeln(generateGetMethodNameCode!T);
-		}
+		}*/
 
 		try
 		{
