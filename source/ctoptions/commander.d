@@ -11,7 +11,7 @@ struct CommandHelp
 
 struct CommandName
 {
-	string value;
+	string[] alternateNames;
 }
 
 ///
@@ -189,27 +189,20 @@ mixin template Commander(string modName = __MODULE__)
 
 				static if(is(typeof(member) == function) && hasUDA!(member, CommandHelp))
 				{
-					string commandNameValue = memberName;
-
-					static if(hasUDA!(member, CommandName))
-					{
-						commandNameValue = getAttribute!(member, CommandName).value;
-					}
-
 					import std.algorithm.mutation : stripLeft;
 
 					if(name.stripLeft('-') == "help")
 					{
 						if(args.length)
 						{
-							if(commandNameValue == args[0])
+							if(memberName == args[0])
 							{
 								foreach(overload; __traits(getOverloads, mod, memberName))
 								{
 									immutable Parameters!overload overLoadedParams;
 
 									writeln;
-									processHelp!overload(commandNameValue, args);
+									processHelp!overload(memberName, args);
 								}
 							}
 						}
@@ -222,12 +215,26 @@ mixin template Commander(string modName = __MODULE__)
 								writeln;
 							}
 
-							processHelp!member(commandNameValue, args);
+							processHelp!member(memberName, args);
 							headerShown = true;
 						}
 					}
 					else
 					{
+						string commandNameValue;
+
+						static if(hasUDA!(member, CommandName))
+						{
+							auto altNames = getAttribute!(member, CommandName).alternateNames;
+							foreach(altName; altNames)
+							{
+								if(altName == name)
+								{
+									commandNameValue = name;
+								}
+							}
+						}
+
 						if(memberName == name || commandNameValue == name)
 						{
 							bool found;
