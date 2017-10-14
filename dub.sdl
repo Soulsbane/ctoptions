@@ -7,4 +7,4 @@ configuration "library" {
 	targetType "library"
 }
 
-dependency "fluent-asserts" version="~>0.6.6"
+dependency "fluent-asserts" version=">=0.6.6"
