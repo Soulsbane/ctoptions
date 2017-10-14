@@ -196,7 +196,9 @@ mixin template Commander(string modName = __MODULE__)
 						udaValue = getAttribute!(member, CommandName).value;
 					}
 
-					if(name.removechars("-") == "help")
+					import std.algorithm.mutation : stripLeft;
+
+					if(name.stripLeft('-') == "help")
 					{
 						if(args.length)
 						{
