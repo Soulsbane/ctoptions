@@ -189,11 +189,11 @@ mixin template Commander(string modName = __MODULE__)
 
 				static if(is(typeof(member) == function) && hasUDA!(member, CommandHelp))
 				{
-					string udaValue = memberName;
+					string commandNameValue = memberName;
 
 					static if(hasUDA!(member, CommandName))
 					{
-						udaValue = getAttribute!(member, CommandName).value;
+						commandNameValue = getAttribute!(member, CommandName).value;
 					}
 
 					import std.algorithm.mutation : stripLeft;
@@ -202,14 +202,14 @@ mixin template Commander(string modName = __MODULE__)
 					{
 						if(args.length)
 						{
-							if(udaValue == args[0])
+							if(commandNameValue == args[0])
 							{
 								foreach(overload; __traits(getOverloads, mod, memberName))
 								{
 									immutable Parameters!overload overLoadedParams;
 
 									writeln;
-									processHelp!overload(udaValue, args);
+									processHelp!overload(commandNameValue, args);
 								}
 							}
 						}
@@ -222,13 +222,13 @@ mixin template Commander(string modName = __MODULE__)
 								writeln;
 							}
 
-							processHelp!member(udaValue, args);
+							processHelp!member(commandNameValue, args);
 							headerShown = true;
 						}
 					}
 					else
 					{
-						if(memberName == name || udaValue == name)
+						if(memberName == name || commandNameValue == name)
 						{
 							bool found;
 
