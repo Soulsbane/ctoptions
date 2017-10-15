@@ -205,6 +205,7 @@ mixin template Commander(string modName = __MODULE__)
 									processHelp!overload(memberName, args);
 								}
 							}
+							//FIXME: Handle an invalid help argument passed.
 						}
 						else
 						{
@@ -249,7 +250,7 @@ mixin template Commander(string modName = __MODULE__)
 									processCommand!overload(memberName, args);
 								}
 							}
-							// Failed to find the function so call with defaults so we can generate a detailed error.
+							//FIXME: Does not work as described Failed to find the function so call with defaults so we can generate a detailed error.
 							if(!found)
 							{
 								processCommand!member(memberName, args);
