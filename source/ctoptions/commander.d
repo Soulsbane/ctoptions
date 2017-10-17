@@ -171,13 +171,13 @@ mixin template Commander(string modName = __MODULE__)
 		*/
 		void process()(string[] arguments)
 		{
-			string name;
+			string command;
 			string[] args = arguments[1 .. $];
 			bool headerShown;
 
 			if(args.length)
 			{
-				name = args[0];
+				command = args[0];
 				args = args[1 .. $];
 			}
 
@@ -191,7 +191,7 @@ mixin template Commander(string modName = __MODULE__)
 				{
 					import std.algorithm.mutation : stripLeft;
 
-					if(name.stripLeft('-') == "help")
+					if(command.stripLeft('-') == "help")
 					{
 						if(args.length)
 						{
@@ -229,14 +229,14 @@ mixin template Commander(string modName = __MODULE__)
 							auto altNames = getAttribute!(member, CommandName).alternateNames;
 							foreach(altName; altNames)
 							{
-								if(altName == name)
+								if(altName == command)
 								{
-									commandNameValue = name;
+									commandNameValue = command;
 								}
 							}
 						}
 
-						if(memberName == name || commandNameValue == name)
+						if(memberName == command || commandNameValue == command)
 						{
 							bool found;
 
@@ -250,7 +250,7 @@ mixin template Commander(string modName = __MODULE__)
 									processCommand!overload(memberName, args);
 								}
 							}
-							//FIXME: Does not work as described Failed to find the function so call with defaults so we can generate a detailed error.
+
 							if(!found)
 							{
 								processCommand!member(memberName, args);
