@@ -174,6 +174,7 @@ mixin template Commander(string modName = __MODULE__)
 			string command;
 			string[] args = arguments[1 .. $];
 			bool headerShown;
+			bool commandFound;
 
 			if(args.length)
 			{
@@ -193,6 +194,8 @@ mixin template Commander(string modName = __MODULE__)
 
 					if(command.stripLeft('-') == "help")
 					{
+						commandFound = true;
+
 						if(args.length)
 						{
 							if(memberName == args[0])
@@ -239,6 +242,7 @@ mixin template Commander(string modName = __MODULE__)
 						if(memberName == command || commandNameValue == command)
 						{
 							bool found;
+							commandFound = true;
 
 							foreach(overload; __traits(getOverloads, mod, memberName))
 							{
@@ -258,6 +262,11 @@ mixin template Commander(string modName = __MODULE__)
 						}
 					}
 				}
+			}
+
+			if(!commandFound)
+			{
+				writeln("Command not found! Use 'help' for a list of commands");
 			}
 		}
 	}
