@@ -202,6 +202,7 @@ mixin template Commander(string modName = __MODULE__)
 							if(memberName == args[0])
 							{
 								helpCommandFound = true;
+
 								foreach(overload; __traits(getOverloads, mod, memberName))
 								{
 									writeln;
