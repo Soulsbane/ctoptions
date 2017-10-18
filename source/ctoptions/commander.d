@@ -204,8 +204,6 @@ mixin template Commander(string modName = __MODULE__)
 								helpCommandFound = true;
 								foreach(overload; __traits(getOverloads, mod, memberName))
 								{
-									immutable Parameters!overload overLoadedParams;
-
 									writeln;
 									processHelp!overload(memberName, args);
 								}
