@@ -175,6 +175,7 @@ mixin template Commander(string modName = __MODULE__)
 			string[] args = arguments[1 .. $];
 			bool headerShown;
 			bool commandFound;
+			bool helpCommandFound;
 
 			if(args.length)
 			{
@@ -200,6 +201,7 @@ mixin template Commander(string modName = __MODULE__)
 						{
 							if(memberName == args[0])
 							{
+								helpCommandFound = true;
 								foreach(overload; __traits(getOverloads, mod, memberName))
 								{
 									immutable Parameters!overload overLoadedParams;
@@ -208,7 +210,6 @@ mixin template Commander(string modName = __MODULE__)
 									processHelp!overload(memberName, args);
 								}
 							}
-							//FIXME: Handle an invalid help argument passed.
 						}
 						else
 						{
@@ -267,6 +268,11 @@ mixin template Commander(string modName = __MODULE__)
 			if(!commandFound)
 			{
 				writeln("Command not found! Use 'help' for a list of commands");
+			}
+
+			if(!helpCommandFound && args.length)
+			{
+				writeln("Invalid argument: ", args[0], ". For a list of commands use help <command>");
 			}
 		}
 	}
