@@ -383,7 +383,7 @@ private string generateGetMethodNameCode(T)()
 	return code;
 }
 
-class GetOptCodeGenerator(T, string modName = __MODULE__, bool generateHelperMethods = true)
+class GetOptCodeGenerator(T, bool generateHelperMethods = true, string modName = __MODULE__)
 {
 	static if(generateHelperMethods == true)
 	{
