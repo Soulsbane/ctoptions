@@ -317,7 +317,17 @@ private string generateAsMethodNameCode(T)()
 			return true;
 		}
 
-	return false;
+		return false;
+	}
+
+	bool hasId() const pure nothrow @safe
+	{
+		if(data_.id != size_t.init)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	it does this for each member of the struct.
@@ -333,7 +343,7 @@ private string generateHasMethodNameCode(T)()
 		immutable string memNameCapitalized = memName[0].toUpper.to!string ~ memName[1..$];
 
 		code ~= format(q{
-			bool has%s(const %s value = %s.init) const pure nothrow @safe
+			bool has%s(const %s value) const pure nothrow @safe
 			{
 				if(data_.%s == value)
 				{
@@ -342,7 +352,19 @@ private string generateHasMethodNameCode(T)()
 
 				return false;
 			}
-		}, memNameCapitalized, memType, memType, memName);
+		}, memNameCapitalized, memType, memName);
+
+		code ~= format(q{
+			bool has%s() const pure nothrow @safe
+			{
+				if(data_.%s != %s.init)
+				{
+					return true;
+				}
+
+				return false;
+			}
+		}, memNameCapitalized, memName, memType);
 	}
 
 	return code;
