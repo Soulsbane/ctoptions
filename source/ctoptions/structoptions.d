@@ -130,12 +130,15 @@ struct StructOptions(T)
 	*/
 	void createDefaultFile(const string fileName, const bool forceRecreate = false)
 	{
-		if(forceRecreate)
+		if(!fileName.exists || forceRecreate)
 		{
-			fileName.remove();
-		}
+			if(forceRecreate)
+			{
+				fileName.remove();
+			}
 
-		save(fileName);
+			save(fileName);
+		}
 	}
 
 	/**
