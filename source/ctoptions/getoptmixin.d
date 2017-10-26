@@ -342,6 +342,18 @@ private string generateHasMethodNameCode(T)()
 		immutable string memNameCapitalized = memName[0].toUpper.to!string ~ memName[1..$];
 
 		code ~= format(q{
+			bool has%s(const %s value) const pure nothrow @safe
+			{
+				if(getOptOptions_.%s == value)
+				{
+					return true;
+				}
+
+				return false;
+			}
+		}, memNameCapitalized, memType, memName);
+
+		code ~= format(q{
 			bool has%s() const pure nothrow @safe
 			{
 				if(getOptOptions_.%s == %s.init)
