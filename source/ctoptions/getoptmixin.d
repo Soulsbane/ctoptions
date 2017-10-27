@@ -426,6 +426,7 @@ class GetOptCodeGenerator(T, bool generateHelperMethods = true, string modName =
 
 				if(helpInformation.helpWanted)
 				{
+					isHelpCommand_ = true;
 					onHelp(helpInformation.options);
 				}
 				else
@@ -449,6 +450,11 @@ class GetOptCodeGenerator(T, bool generateHelperMethods = true, string modName =
 			immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
 			onInvalidArgument(message);
 		}
+	}
+
+	bool isHelpCommand() const pure nothrow @safe
+	{
+		return isHelpCommand_;
 	}
 
 	/**
@@ -488,4 +494,5 @@ class GetOptCodeGenerator(T, bool generateHelperMethods = true, string modName =
 
 private:
 	T getOptOptions_;
+	bool isHelpCommand_;
 }
