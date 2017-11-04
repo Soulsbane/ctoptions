@@ -9,6 +9,7 @@ import std.string, std.file, std.algorithm, std.array;
 import std.getopt, std.stdio, std.string, std.uni, std.math;
 
 private enum DEFAULT_CONFIG_FILE_NAME = "app.config";
+enum DisableSave; // UDA to disable the saving of members to file.
 
 /**
 	Used for the creation of key/value configuration format.
@@ -99,22 +100,25 @@ struct StructOptions(T)
 
 		foreach(field; __traits(allMembers, T))
 		{
-			immutable string strType = typeof(mixin("T." ~ field)).stringof;
-
-			static if(mixin("isFloatingPoint!" ~ strType))
+			static if(!hasUDA!(mixin("T." ~ field), DisableSave))
 			{
-				if(mixin("isNaN(data_." ~ field ~ ")"))
+				immutable string strType = typeof(mixin("T." ~ field)).stringof;
+
+				static if(mixin("isFloatingPoint!" ~ strType))
 				{
-					keyValueData ~= field ~ " = 0.0\n";
+					if(mixin("isNaN(data_." ~ field ~ ")"))
+					{
+						keyValueData ~= field ~ " = 0.0\n";
+					}
+					else
+					{
+						keyValueData ~= field ~ " = " ~ mixin("to!string(data_." ~ field ~ ")") ~ "\n";
+					}
 				}
 				else
 				{
 					keyValueData ~= field ~ " = " ~ mixin("to!string(data_." ~ field ~ ")") ~ "\n";
 				}
-			}
-			else
-			{
-				keyValueData ~= field ~ " = " ~ mixin("to!string(data_." ~ field ~ ")") ~ "\n";
 			}
 		}
 
