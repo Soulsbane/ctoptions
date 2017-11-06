@@ -226,6 +226,8 @@ mixin template Commander(string modName = __MODULE__)
 					else
 					{
 						string commandNameValue;
+						// Set to true or an Invalid arugument will be thrown. Since D has no compile time variables.
+						helpCommandFound = true;
 
 						static if(hasUDA!(member, CommandName))
 						{
