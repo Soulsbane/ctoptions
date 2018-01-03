@@ -4,6 +4,7 @@
 module ctoptions.getoptmixin;
 
 public import std.getopt;
+public import std.typecons;
 
 import std.traits;
 import std.stdio;
@@ -395,9 +396,10 @@ private string generateGetMethodNameCode(T)()
 	return code;
 }
 
-class GetOptCodeGenerator(T, bool generateHelperMethods = true, string modName = __MODULE__)
+class GetOptCodeGenerator(T, const Flag!"generateHelperMethods" generateHelperMethods = Yes.generateHelperMethods,
+string modName = __MODULE__)
 {
-	static if(generateHelperMethods == true)
+	static if(generateHelperMethods == Yes.generateHelperMethods)
 	{
 		mixin(generateHasMethodNameCode!T);
 		mixin(generateGetMethodNameCode!T);
