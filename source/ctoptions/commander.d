@@ -17,7 +17,7 @@ struct CommandName
 ///
 mixin template Commander(string modName = __MODULE__)
 {
-	import std.traits, std.conv, std.stdio, std.typetuple, std.string;
+	import std.traits, std.conv, std.stdio, std.typetuple, std.string, std.meta;
 	/**
 		Handles commands sent via the commandline.
 
@@ -38,8 +38,6 @@ mixin template Commander(string modName = __MODULE__)
 	*/
 	struct Commander
 	{
-		alias helper(alias T) = T;
-
 		private auto getAttribute(alias mem, T)()
 		{
 			foreach(attr; __traits(getAttributes, mem))
@@ -183,11 +181,11 @@ mixin template Commander(string modName = __MODULE__)
 				args = args[1 .. $];
 			}
 
-			alias mod = helper!(mixin(modName));
+			alias mod = Alias!(mixin(modName));
 
 			foreach(memberName; __traits(allMembers, mod))
 			{
-				alias member = helper!(__traits(getMember, mod, memberName));
+				alias member = Alias!(__traits(getMember, mod, memberName));
 
 				static if(is(typeof(member) == function) && hasUDA!(member, CommandHelp))
 				{
