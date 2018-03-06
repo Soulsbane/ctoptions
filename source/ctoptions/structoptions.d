@@ -418,8 +418,6 @@ private string generateSetMethodNameCode(T)()
 ///
 unittest
 {
-	import fluent.asserts;
-
 	struct VariedData
 	{
 		string name;
@@ -435,40 +433,45 @@ unittest
 	StructOptions!VariedData options;
 	options.loadString(data);
 
-	options.as!(string, "name")("onamae").should.equal("Paul");
-	options.as!(string, "name").should.equal("Paul"); // No default value passed.
+	assert(options.as!(string, "name")("onamae") == "Paul");
+	assert(options.as!(string, "name") == "Paul"); // No default value passed.
 
-	options.contains("id").should.equal(true);
-	options.contains("nothing").should.equal(false);
+	assert(options.contains("id"));
+	assert(options.contains("nothing") == false);
 
-	options.asInteger!("id")(10).should.equal(50);
-	options.asInteger!("id").should.equal(50);
-	options.asString!("id").should.equal("50");
+	assert(options.asInteger!("id")(10) == 50);
+	assert(options.asInteger!("id") == 50);
+	assert(options.asString!("id") == "50");
 
 	//Sugar
+<<<<<<< HEAD
 	options.hasId(50).should.equal(true);
 	options.getId(10).should.equal(50);
 	options.getName().should.equal("Paul");
+=======
+	assert(options.getId(10) == 50);
+	assert(options.getName() == "Paul");
+>>>>>>> parent of 9fb586d... Convert structoptions unittests to fluent.asserts.
 
-	options.contains("invalid").should.equal(false);
+	assert(options.contains("invalid") == false);
 
-	options.name.should.equal("Paul");
+	assert(options.name == "Paul");
 
 	options.name = "Bob";
-	options.name.should.equal("Bob");
+	assert(options.name == "Bob");
 
 	options.set("name", "Kyle");
-	options.name.should.equal("Kyle");
+	assert(options.name == "Kyle");
 
 	options["name"] = "Jim";
-	options.name.should.equal("Jim");
+	assert(options.name == "Jim");
 
-	options.as!(long, "id")(1).should.equal(50);
+	assert(options.as!(long, "id")(1) == 50);
 
 	immutable string emptyData;
 
 	StructOptions!VariedData dataEmptyOptions;
-	dataEmptyOptions.loadString(emptyData).should.equal(false);
+	assert(dataEmptyOptions.loadString(emptyData) == false);
 
 	immutable string oneValue =
 	q{
@@ -478,10 +481,10 @@ unittest
 	StructOptions!VariedData oneValueTest;
 
 	oneValueTest.loadString(oneValue);
-	oneValueTest.getId(10).should.equal(10);
+	assert(oneValueTest.getId(10) == 10);
 
 	oneValueTest.setId(5281);
-	oneValueTest.getId().should.equal(5281);
+	assert(oneValueTest.getId() == 5281);
 
 	struct IrregularNames
 	{
@@ -493,8 +496,9 @@ unittest
 
 	irrNames.setTocField("Setting toc field");
 	irrNames.setId(1900);
-	irrNames.getTocField.should.equal("Setting toc field");
-	irrNames.getId.should.equal(1900);
+
+	assert(irrNames.getTocField == "Setting toc field");
+	assert(irrNames.getId = 1900);
 
 	/*struct Foo
 	{
