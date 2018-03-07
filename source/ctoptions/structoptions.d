@@ -444,14 +444,9 @@ unittest
 	assert(options.asString!("id") == "50");
 
 	//Sugar
-<<<<<<< HEAD
-	options.hasId(50).should.equal(true);
-	options.getId(10).should.equal(50);
-	options.getName().should.equal("Paul");
-=======
+	assert(options.hasId(50) == true);
 	assert(options.getId(10) == 50);
 	assert(options.getName() == "Paul");
->>>>>>> parent of 9fb586d... Convert structoptions unittests to fluent.asserts.
 
 	assert(options.contains("invalid") == false);
 
