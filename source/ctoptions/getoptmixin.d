@@ -482,9 +482,8 @@ string modName = __MODULE__)
 	*/
 	void onUnknownArgument(const string msg)
 	{
-		writeln(msg, ". For a list of available commands use --help.");
+		writeln(msg);
 	}
-
 	/**
 		Called when an argument is passed a wrong type. Example: int id; --id=hello
 	*/
