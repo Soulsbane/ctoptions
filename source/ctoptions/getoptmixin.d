@@ -142,7 +142,7 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 			{
 				string commandLineName = attrValues.name;
 				immutable string callbackFuncName = attrValues.func;
-				string objectName = attrValues.object;
+				immutable string objectName = attrValues.object;
 				string callback;
 
 				if(objectName.length)
@@ -186,7 +186,7 @@ mixin template GetOptMixin(T, string varName = "options", string modName = __MOD
 				{
 					string commandLineName = attrValues.name;
 					immutable string callbackFuncName = attrValues.func;
-					string objectName = attrValues.object;
+					immutable string objectName = attrValues.object;
 					string callback;
 
 					if(objectName.length)
