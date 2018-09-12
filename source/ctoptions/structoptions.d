@@ -416,6 +416,7 @@ private string generateSetMethodNameCode(T)()
 }
 
 ///
+@("StructOptions")
 unittest
 {
 	struct VariedData
