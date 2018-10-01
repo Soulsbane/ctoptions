@@ -7,4 +7,4 @@ configuration "library" {
 	targetType "library"
 }
 
-dependency "silly" version="~>0.7.0"
+dependency "silly" version="~>0.8.0"
