@@ -136,11 +136,7 @@ struct StructOptions(T)
 	{
 		if(!fileName.exists || forceRecreate)
 		{
-			if(forceRecreate)
-			{
-				fileName.remove();
-			}
-
+			fileName.remove();
 			save(fileName);
 		}
 	}
