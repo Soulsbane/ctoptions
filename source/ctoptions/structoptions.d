@@ -365,12 +365,12 @@ private string generateHasMethodNameCode(T)()
 		code ~= format(q{
 			bool has%s() const pure nothrow @safe
 			{
-				if(data_.%s != %s.init)
+				if(data_.%s == %s.init)
 				{
-					return true;
+					return false;
 				}
 
-				return false;
+				return true;
 			}
 		}, memNameCapitalized, memName, memType);
 	}
