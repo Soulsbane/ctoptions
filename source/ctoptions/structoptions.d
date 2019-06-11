@@ -134,9 +134,14 @@ struct StructOptions(T)
 	*/
 	void createDefaultFile(const string fileName, const bool forceRecreate = false)
 	{
+		// FIXME: Find a better way to do this when I'm more rested!
 		if(!fileName.exists || forceRecreate)
 		{
-			fileName.remove();
+			if(fileName.exists)
+			{
+				fileName.remove();
+			}
+
 			save(fileName);
 		}
 	}
