@@ -16,14 +16,6 @@ enum DisableSave; // UDA to disable the saving of members to file.
 */
 struct StructOptions(T)
 {
-	~this() @safe
-	{
-		if(autoSave_)
-		{
-			save();
-		}
-	}
-
 	/**
 		Loads a config fileName(app.config by default).
 
@@ -34,7 +26,7 @@ struct StructOptions(T)
 		Returns:
 			Returns true on a successful load false otherwise.
 	*/
-	bool loadFile(const string fileName = DEFAULT_CONFIG_FILE_NAME, const bool autoSave = true) @safe
+	bool loadFile(const string fileName = DEFAULT_CONFIG_FILE_NAME) @safe
 	{
 		if(fileName.exists)
 		{
