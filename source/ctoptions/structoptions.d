@@ -16,6 +16,23 @@ enum DisableSave; // UDA to disable the saving of members to file.
 */
 struct StructOptions(T)
 {
+	this(T)(T values)
+	{
+		string code;
+
+		foreach (i, memberType; typeof(T.tupleof))
+		{
+			immutable string memName = T.tupleof[i].stringof;
+
+			code ~= format(q{
+				if(values.%s != data_.%s && values.%s != values.%s.init)
+				{
+					data_.%s = values.%s;
+				}
+			}, memName, memName, memName, memName, memName, memName);
+		}
+	}
+
 	/**
 		Loads a config fileName(app.config by default).
 
