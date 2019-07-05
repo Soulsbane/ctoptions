@@ -416,6 +416,8 @@ string modName = __MODULE__)
 
 		try
 		{
+			appArguments = arguments;
+
 			if(arguments.length == 1)
 			{
 				onNoArguments();
@@ -452,6 +454,11 @@ string modName = __MODULE__)
 			immutable string message = parseErrorText(ex.msg ~ ". For a list of available commands use --help.");
 			onInvalidArgument(message);
 		}
+	}
+
+	string[] getArgumentsRaw()
+	{
+		return appArguments;
 	}
 
 	bool isHelpCommand() const pure nothrow @safe
@@ -495,5 +502,6 @@ string modName = __MODULE__)
 
 private:
 	T getOptOptions_;
+	string[] appArguments;
 	bool isHelpCommand_;
 }
