@@ -1,10 +1,9 @@
 name "ctoptions"
 description "Create options at compile time.."
-copyright "Copyright © "
 authors "Paul Crane"
+copyright "Copyright © "
+dependency "silly" version="~>1.1.1"
 targetType "library"
 configuration "library" {
 	targetType "library"
 }
-
-dependency "silly" version="~>0.8.0"
